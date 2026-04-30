@@ -5,7 +5,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-#include "air_hockey.h"
+#include "../driver/air_hockey.h"
 
 /*
  * Global file descriptor for the device.
