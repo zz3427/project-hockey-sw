@@ -42,7 +42,7 @@ CFLAGS := -I driver -Wall -Wextra -g
 #
 # Right now we only have one test program, but keeping a variable makes it easy
 # to extend later.
-TEST_BINS := test/test_positions
+TEST_BINS := tests/test_positions
 
 
 .PHONY: default all module tests clean help
@@ -66,8 +66,8 @@ tests: $(TEST_BINS)
 # It talks to the kernel driver through:
 #   - open("/dev/air_hockey")
 #   - ioctl(...)
-test/test_positions: test/test_positions.c driver/air_hockey.h
-	$(CC) $(CFLAGS) test/test_positions.c -o test/test_positions
+test/test_positions: tests/test_positions.c driver/air_hockey.h
+	$(CC) $(CFLAGS) tests/test_positions.c -o test/test_positions
 
 # Clean everything produced by this software repo
 #
