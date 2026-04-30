@@ -20,7 +20,6 @@
  */
 
 #include <linux/ioctl.h>
-#include <stdint.h>
 
 /*
  * AIR_HOCKEY_MAGIC
@@ -46,12 +45,12 @@
  *   bits [15:0]  = x
  *   bits [31:16] = y
  *
- * We use uint16_t because the hardware register map allocates 16 bits
+ * We use unsigned short because the hardware register map allocates 16 bits
  * per coordinate.
  */
 typedef struct {
-    uint16_t x;
-    uint16_t y;
+    unsigned short x;
+    unsigned short y;
 } air_hockey_pos_t;
 
 /*
@@ -65,8 +64,8 @@ typedef struct {
  * manually pack bitfields.
  */
 typedef struct {
-    uint8_t p1;
-    uint8_t p2;
+    unsigned char p1;
+    unsigned char p2;
 } air_hockey_score_t;
 
 /*
@@ -82,7 +81,7 @@ typedef struct {
  * without changing the general driver pattern.
  */
 typedef struct {
-    uint32_t status;
+    unsigned int status;
 } air_hockey_status_t;
 
 /*
@@ -103,7 +102,7 @@ typedef struct {
 } air_hockey_score_arg_t;
 
 typedef struct {
-    uint8_t sound_event;
+    unsigned char sound_event;
 } air_hockey_sound_arg_t;
 
 /*

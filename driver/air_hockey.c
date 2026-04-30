@@ -78,9 +78,9 @@
  *   bits [15:0]  = x
  *   bits [31:16] = y
  */
-static inline uint32_t pack_pos(const air_hockey_pos_t *p)
+static inline unsigned int pack_pos(const air_hockey_pos_t *p)
 {
-    return (((uint32_t)p->y) << 16) | ((uint32_t)p->x);
+    return (((unsigned int)p->y) << 16) | ((unsigned int)p->x);
 }
 
 /*
@@ -91,10 +91,10 @@ static inline uint32_t pack_pos(const air_hockey_pos_t *p)
  *   bits [5:3] = player 2 score
  *   bits [31:6] = 0
  */
-static inline uint32_t pack_score(const air_hockey_score_t *s)
+static inline unsigned int pack_score(const air_hockey_score_t *s)
 {
-    return (((uint32_t)(s->p2 & 0x7)) << 3) |
-           ((uint32_t)(s->p1 & 0x7));
+    return (((unsigned int)(s->p2 & 0x7)) << 3) |
+           ((unsigned int)(s->p1 & 0x7));
 }
 
 /*
@@ -104,9 +104,9 @@ static inline uint32_t pack_score(const air_hockey_score_t *s)
  *   bits [2:0] = sound event ID
  *   bits [31:3] = 0
  */
-static inline uint32_t pack_sound(uint8_t sound_event)
+static inline unsigned int pack_sound(unsigned char sound_event)
 {
-    return ((uint32_t)(sound_event & 0x7));
+    return ((unsigned int)(sound_event & 0x7));
 }
 
 /*
@@ -144,7 +144,7 @@ static void write_score(const air_hockey_score_t *s)
     iowrite32(pack_score(s), REG32_ADDR(dev.virtbase, REG_SCORE));
 }
 
-static void write_sound(uint8_t sound_event)
+static void write_sound(unsigned char sound_event)
 {
     iowrite32(pack_sound(sound_event), REG32_ADDR(dev.virtbase, REG_SOUND_CONTROL));
 }
@@ -154,7 +154,7 @@ static void write_sound(uint8_t sound_event)
  * This is exposed through AIR_HOCKEY_READ_STATUS so userspace can poll
  * VSYNC_READY and synchronize updates to vertical blank.
  */
-static uint32_t read_status(void)
+static unsigned int read_status(void)
 {
     return ioread32(REG32_ADDR(dev.virtbase, REG_STATUS));
 }
