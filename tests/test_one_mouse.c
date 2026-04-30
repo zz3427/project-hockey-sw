@@ -188,6 +188,7 @@ int main(int argc, char *argv[])
                 x = clamp_mouse(x + ev.value, X_MIN, X_MAX);
             else if (ev.code == REL_Y)
                 y = clamp_mouse(y + ev.value, Y_MIN, Y_MAX);
+            wait_for_vsync_ready();
             set_p1(x, y);
         }
     }
