@@ -1,0 +1,23 @@
+0x00 STATUS          R
+0x04 SOUND_CONTROL   W
+0x08 P1_POS          W
+0x0C P2_POS          W
+0x10 PUCK_POS        W
+0x14 SCORE           W
+
+STATUS
+    bit 0: VSYNC_READY
+    bits 31:1 reserved
+
+SOUND_CONTROL
+    bits 2:0 SOUND_EVENT
+    bits 31:3 reserved
+
+P1_POS, P2_POS, PUCK_POS
+    bits 15:0 X
+    bits 31:16 Y
+
+SCORE
+    bits 2:0 SCORE_P1
+    bits 5:3 SCORE_P2
+    bits 31:6 reserved
