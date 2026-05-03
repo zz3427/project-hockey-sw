@@ -3,10 +3,6 @@
 #include "physics_engine.h"
 #include "game_io.h"
 
-// Hardware abstraction placeholders (To be implemented with actual memory-mapped I/O)
-bool is_vsync_ready() { return true; /* Replace with hardware register poll */ }
-// void clear_vsync() { /* Acknowledge VSYNC */ } // we don't clear_vsync
-void wait_for_vsync() { game_io_wait_for_vsync(); /* Use game_io's busy-wait for VSYNC */ }
 
  /*
   * Send the current visible game object positions to hardware.
@@ -82,6 +78,8 @@ void simulateFrame(GameObject *puck, GameObject *p1, GameObject *p2,
     }
 }
 
+
+
 int main() {
     // 1. Initialize Game Objects
     GameObject p1 = {{100.0, 240.0}, {0.0, 0.0}, 20.0}; 
@@ -95,20 +93,25 @@ int main() {
     int game_state = 0; // 0 = playing, 1 = goal scored/waiting for serve
 
     printf("Starting Embedded Air Hockey Engine...\n");
+    if (game_io_open("/dev/air_hockey") != 0) {
+        fprintf(stderr, "Failed to open /dev/air_hockey\n");
+        return 1;
+    }
 
     // 2. Main Hardware Game Loop
     while (1) {
         // Wait for VGA to finish drawing the current frame (60 Hz sync)
-        wait_for_vsync();
-            
-        // Process button-press logic for state control (e.g., serving the puck after a goal)
-        int btn = get_button_press();
-        if (btn != 0) {
-            // Handle constraints for button logic here
-        }
+        game_io_wait_for_vsync();
 
         // TODO: Read /dev/input/mice evdev accumulators here and apply to p1.pos and p2.pos
-        
+        // STEP 1: Read input
+        // STEP 2: Update paddle
+        // STEP 3: Simulate puck
+        // STEP 4: Detect goal / update game_state / score
+        // STEP 5: Decide sound event for this frame
+        // STEP 6: Push all state to hardware
+
+
         // Run physics engine for this frame
         if (game_state == 0) {
             simulateFrame(&puck, &p1, &p2, &left_top_post, &left_bot_post);
@@ -118,17 +121,10 @@ int main() {
         // If goal: update scores, reset puck to center, game_state = 1
         
         // Send updated coordinates to the Verilog VGA driver
-        write_to_vga_registers(&puck, &p1, &p2);
-
-        // Output current state to hardware LEDs
-        update_board_leds(game_state, p1_score, p2_score);
-
-        // Acknowledge VSYNC to prevent running the frame twice
-        clear_vsync();
+        write_to_vga_registers(&puck, &p1, &p2, 0, 0, AIR_HOCKEY_SOUND_NONE);
         
-        // For testing on PC: break after 1 frame so it doesn't infinite loop in the terminal
-        break; 
     }
 
+    game_io_close(); //close the device when done
     return 0;
 }
