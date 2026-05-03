@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <math.h>
+#include <float.h>
 
 // For mouse input
 #include <linux/input.h>
@@ -48,6 +50,16 @@ int get_button_press() { return 0; /* Read KEY0/KEY1 for game reset or serve con
 // Helper function for sub-frame loop
 double min_time(double a, double b) { return (a < b) ? a : b; }
 
+
+//TODO: to be deleted after debug
+void print_time(const char *name, double t) {
+    if (t == DBL_MAX || isinf(t)) {
+        printf("%s=INF ", name);
+    } else {
+        printf("%s=%.6f ", name, t);
+    }
+}
+
 // The core 60 Hz Continuous Collision Detection (CCD) engine
 void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2, 
                    GameObject *top_post, GameObject *bottom_post) {
@@ -82,10 +94,13 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
          * This is the most important debug line.
          * If one of these is always 0.000000, that is probably your problem.
          */
-        fprintf(stderr,
-                "[simulate_frame] times: "
-                "t_wall=%.6f t_p1=%.6f t_p2=%.6f t_top=%.6f t_bot=%.6f\n",
-                t_wall, t_p1, t_p2, t_top, t_bot);
+        printf("[simulate_frame] times: ");
+        print_time("t_wall", t_wall);
+        print_time("t_p1", t_p1);
+        print_time("t_p2", t_p2);
+        print_time("t_top", t_top);
+        print_time("t_bot", t_bot);
+        printf("\n");
         
         double t_c = min_time(t_wall, min_time(t_p1, t_p2));
         t_c = min_time(t_c, min_time(t_top, t_bot));
