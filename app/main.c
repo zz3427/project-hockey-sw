@@ -1,5 +1,9 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <errno.h>
+
+#include <linux/input.h>
+
 #include "physics_engine.h"
 #include "game_io.h"
 
@@ -78,7 +82,45 @@ void simulateFrame(GameObject *puck, GameObject *p1, GameObject *p2,
     }
 }
 
+static double clamp_double(double val, double lo, double hi)
+{
+    if (val < lo) return lo;
+    if (val > hi) return hi;
+    return val;
+}
 
+void update_p1_from_mouse(GameObject *p1, int dx, int dy)
+{
+    p1->pos.x = clamp_double(p1->pos.x + dx, 24.0, 615.0);
+    p1->pos.y = clamp_double(p1->pos.y + dy, 24.0, 455.0);
+}
+
+static void poll_mouse_and_update_p1(int mouse_fd, GameObject *p1)
+{
+    struct input_event ev;
+    int dx = 0;
+    int dy = 0;
+
+    /*
+     * Drain all currently pending mouse events.
+     * nonblocking, so read() will stop with -1 / EAGAIN when
+     * there is no more input available for this frame.
+     */
+    while (read(mouse_fd, &ev, sizeof(ev)) == sizeof(ev)) {
+        if (ev.type == EV_REL) {
+            if (ev.code == REL_X)
+                dx += ev.value;
+            else if (ev.code == REL_Y)
+                dy += ev.value;
+        }
+    }
+
+    // Apply the accumulated movement once per frame.
+    if (dx != 0 || dy != 0) {
+        p1->pos.x = clamp_double(p1->pos.x + dx, 24.0, 615.0);
+        p1->pos.y = clamp_double(p1->pos.y + dy, 24.0, 455.0);
+    }
+}
 
 int main() {
     // 1. Initialize Game Objects
@@ -98,13 +140,22 @@ int main() {
         return 1;
     }
 
+    const char *dev_mouse = "/dev/input/event0";
+    int mouse_fd = open(dev_mouse, O_RDONLY | O_NONBLOCK);
+    if (mouse_fd == -1) {
+        perror("open(mouse device) failed");
+        game_io_close();
+        return 1;
+    }
+
     // 2. Main Hardware Game Loop
     while (1) {
         // Wait for VGA to finish drawing the current frame (60 Hz sync)
         game_io_wait_for_vsync();
 
         // TODO: Read /dev/input/mice evdev accumulators here and apply to p1.pos and p2.pos
-        // STEP 1: Read input
+        // STEP 1: Read input nonblocking
+        poll_mouse_and_update_p1(mouse_fd, &p1);
         // STEP 2: Update paddle
         // STEP 3: Simulate puck
         // STEP 4: Detect goal / update game_state / score
@@ -125,6 +176,7 @@ int main() {
         
     }
 
+    close(mouse_fd);
     game_io_close(); //close the device when done
     return 0;
 }
