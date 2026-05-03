@@ -70,7 +70,7 @@ tests/test_mouse: tests/test_mouse.c app/game_io.c app/game_io.h driver/air_hock
 	$(CC) $(CFLAGS) tests/test_mouse.c app/game_io.c -o tests/test_mouse
 
 app/main: app/main.c app/game_io.c app/physics_engine.c app/physics_engine.h app/game_io.h driver/air_hockey.h
-	$(CC) $(CFLAGS) app/main.c app/game_io.c app/physics_engine.c -o app/main
+	$(CC) $(CFLAGS) app/main.c app/game_io.c app/physics_engine.c -o app/main -lm
 
 # ----------------------------------------------------------------------------
 # Clean everything
