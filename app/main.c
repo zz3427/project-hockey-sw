@@ -17,6 +17,7 @@
 #define Y_MIN    24.0
 #define Y_MAX    455.0
 
+#define MOUSE_SENSITIVITY 5.0
  /*
   * Send the current visible game object positions to hardware.
   *
@@ -86,8 +87,10 @@ void simulateFrame(GameObject *puck, GameObject *p1, GameObject *p2,
     }
     
     if (bounce_count >= MAX_BOUNCES) {
-        puck->vel.x = 0;
-        puck->vel.y = 0;
+        // puck->vel.x = 0;
+        // puck->vel.y = 0;
+        // Prevent infinite loop in extreme edge cases
+        perror("Max bounces reached in one frame, possible tunneling issue");
     }
 }
 
@@ -96,12 +99,6 @@ static double clamp_double(double val, double lo, double hi)
     if (val < lo) return lo;
     if (val > hi) return hi;
     return val;
-}
-
-void update_p1_from_mouse(GameObject *p1, int dx, int dy)
-{
-    p1->pos.x = clamp_double(p1->pos.x + dx, 24.0, 615.0);
-    p1->pos.y = clamp_double(p1->pos.y + dy, 24.0, 455.0);
 }
 
 /*
@@ -121,6 +118,9 @@ static void poll_mouse_and_update_paddle(int mouse_fd, GameObject *p,
             else if (ev.code == REL_Y) dy += ev.value;
         }
     }
+
+    p->vel.x = dx * MOUSE_SENSITIVITY;
+    p->vel.y = dy * MOUSE_SENSITIVITY;
 
     if (dx != 0 || dy != 0) {
         p->pos.x = clamp_double(p->pos.x + dx, x_min, x_max);
@@ -188,7 +188,7 @@ int main() {
         // If goal: update scores, reset puck to center, game_state = 1
 
         // STEP 4: Decide sound event for this frame
-        
+
         // STEP 5: Push all state to hardware
         // Send updated coordinates to the Verilog VGA driver
         write_to_vga_registers(&puck, &p1, &p2, p1_score, p2_score, AIR_HOCKEY_SOUND_NONE);
