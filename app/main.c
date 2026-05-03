@@ -19,6 +19,8 @@
 #define Y_MIN    24.0
 #define Y_MAX    455.0
 
+#define IF_DEBUG 1
+
 #define MOUSE_SENSITIVITY 5.0
  /*
   * Send the current visible game object positions to hardware.
@@ -75,14 +77,15 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
          * This tells us where the puck currently is and how it is moving
          * before we compute collision times.
          */
-        fprintf(stderr,
-                "\n[simulate_frame] START step: "
-                "puck pos=(%.4f, %.4f) vel=(%.4f, %.4f) "
-                "t_remaining=%.6f bounce_count=%d\n",
-                puck->pos.x, puck->pos.y,
-                puck->vel.x, puck->vel.y,
+        if(IF_DEBUG) {
+            fprintf(stderr,
+                    "\n[simulate_frame] START step: "
+                    "puck pos=(%.4f, %.4f) vel=(%.4f, %.4f) "
+                    "t_remaining=%.6f bounce_count=%d\n",
+                    puck->pos.x, puck->pos.y,
+                    puck->vel.x, puck->vel.y,
                 t_remaining, bounce_count);
-        
+            }
         double t_wall = getWallCollisionTime(puck);
         double t_p1   = getPaddleCollisionTime(puck, p1);
         double t_p2   = getPaddleCollisionTime(puck, p2);
@@ -105,22 +108,30 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
         double t_c = min_time(t_wall, min_time(t_p1, t_p2));
         t_c = min_time(t_c, min_time(t_top, t_bot));
 
+        const double MIN_COLLISION_TIME = 1e-6; // Minimum time threshold to consider a collision valid
+        if (t_c < MIN_COLLISION_TIME) {
+            t_c = MIN_COLLISION_TIME;
+        }
         /*
          * Print the chosen collision time for this sub-step.
          */
-        fprintf(stderr,
-                "[simulate_frame] chosen t_c=%.6f\n",
-                t_c);
+        if(IF_DEBUG) {
+            fprintf(stderr,
+                    "[simulate_frame] chosen t_c=%.6f\n",
+                    t_c);
+        }
 
         if (t_c >= t_remaining) {
             // No collision within remaining time, just move puck to end of frame
             puck->pos.x += puck->vel.x * t_remaining;
             puck->pos.y += puck->vel.y * t_remaining;
 
-            fprintf(stderr,
-                    "[simulate_frame] no collision in remaining time, "
-                    "advanced to pos=(%.4f, %.4f)\n",
-                    puck->pos.x, puck->pos.y);
+            if(IF_DEBUG) {
+                fprintf(stderr,
+                        "[simulate_frame] no collision in remaining time, "
+                        "advanced to pos=(%.4f, %.4f)\n",
+                        puck->pos.x, puck->pos.y);
+            }
 
             t_remaining = 0.0;
         } else {
@@ -131,27 +142,29 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
             // Identify which collision happened and apply response
             if (t_c == t_p1){
                 applyPaddleCollision(puck, p1, 1.0);
-                fprintf(stderr, "[simulate_frame] COLLISION with P1 at t=%.6f\n", t_c);
+                if(IF_DEBUG) fprintf(stderr, "[simulate_frame] COLLISION with P1 at t=%.6f\n", t_c);
             } else if (t_c == t_p2) {
                 applyPaddleCollision(puck, p2, 1.0);
-                fprintf(stderr, "[simulate_frame] COLLISION with P2 at t=%.6f\n", t_c);
+                if(IF_DEBUG) fprintf(stderr, "[simulate_frame] COLLISION with P2 at t=%.6f\n", t_c);
             } else if (t_c == t_top) {
                 applyPaddleCollision(puck, top_post, 1.0);
-                fprintf(stderr, "[simulate_frame] COLLISION with TOP POST at t=%.6f\n", t_c);
+                if(IF_DEBUG) fprintf(stderr, "[simulate_frame] COLLISION with TOP POST at t=%.6f\n", t_c);
             } else if (t_c == t_bot) {
                 applyPaddleCollision(puck, bottom_post, 1.0);
-                fprintf(stderr, "[simulate_frame] COLLISION with BOTTOM POST at t=%.6f\n", t_c);
+                if(IF_DEBUG) fprintf(stderr, "[simulate_frame] COLLISION with BOTTOM POST at t=%.6f\n", t_c);
             } else if (t_c == t_wall) {
                 applyWallBounce(puck);
-                fprintf(stderr, "[simulate_frame] COLLISION with WALL at t=%.6f\n", t_c);
+                if(IF_DEBUG) fprintf(stderr, "[simulate_frame] COLLISION with WALL at t=%.6f\n", t_c);
             }
             // print puck state after applying collision response
-            fprintf(stderr,
-                    "[simulate_frame] after collision response: "
-                    "puck pos=(%.4f, %.4f) vel=(%.4f, %.4f)\n",
-                    puck->pos.x, puck->pos.y,
-                    puck->vel.x, puck->vel.y);  
-                    
+            if(IF_DEBUG) {
+                fprintf(stderr,
+                        "[simulate_frame] after collision response: "
+                        "puck pos=(%.4f, %.4f) vel=(%.4f, %.4f)\n",
+                        puck->pos.x, puck->pos.y,
+                        puck->vel.x, puck->vel.y);
+            }
+
             t_remaining -= t_c;
             bounce_count++;
         }
@@ -161,9 +174,11 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
         // puck->vel.x = 0;
         // puck->vel.y = 0;
         // Prevent infinite loop in extreme edge cases
-        fprintf(stderr,
-        "simulateFrame: MAX_BOUNCES reached, puck pos=(%.2f, %.2f) vel=(%.2f, %.2f)\n",
-        puck->pos.x, puck->pos.y, puck->vel.x, puck->vel.y);
+        if(IF_DEBUG) {
+            fprintf(stderr,
+            "simulateFrame: MAX_BOUNCES reached, puck pos=(%.2f, %.2f) vel=(%.2f, %.2f)\n",
+            puck->pos.x, puck->pos.y, puck->vel.x, puck->vel.y);
+        }
     }
 }
 

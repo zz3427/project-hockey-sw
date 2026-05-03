@@ -52,12 +52,24 @@ double getPaddleCollisionTime(const GameObject *puck, const GameObject *paddle) 
     double B = 2.0 * ((dp_x * dv_x) + (dp_y * dv_y));
     double C = (dp_x * dp_x) + (dp_y * dp_y) - (r_sum * r_sum);
 
+    // If relative velocity is near 0 (A < EPS), they will never collide
+    if (A < 1e-10) return DBL_MAX;
+
+    // Check if they are currently overlapping and moving towards each other
+    double closing = (dp_x * dv_x) + (dp_y * dv_y);
+
     // If objects are already overlapping (C <= 0), collision is happening right now
-    if (C <= 0.0) return 0.0;
+    if (C <= 0.0){
+        if (closing < 0) {
+            // They are moving towards each other while overlapping, treat as immediate collision
+            return 0.0;
+        } else {
+            // They are moving apart while overlapping, treat as no future collision
+            return DBL_MAX;
+        }
+    }
 
-    // If relative velocity is 0 (A == 0), they will never collide
-    if (A == 0.0) return DBL_MAX;
-
+    // Calculate discriminant to check if paths intersect
     double discriminant = (B * B) - (4.0 * A * C);
 
     // If discriminant is negative, the paths never cross
