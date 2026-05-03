@@ -1,89 +1,91 @@
 # ============================================================================
 # Root Makefile for project-hockey-sw
 #
-# Repo layout should match:
-#   project-hockey-sw/
-#     Makefile
-#     driver/
-#       Makefile
-#       air_hockey.c
-#       air_hockey.h
-#     test/
-#       test_positions.c
-#     app/
-#       ...
+# Purpose:
+#   Build userspace app/test programs and optionally the kernel module.
 #
-# This file builds:
-#   1. the kernel module (through driver/Makefile)
-#   2. the userspace test program(s)
+# Design choice:
+#   We do NOT build the kernel module by default anymore.
+#   This avoids rebuilding driver/air_hockey.ko when only userspace files
+#   changed.
 #
-# Spliting into two Makefiles allows kernel module builds which uses
-#	 linux kernel build system to be separate. makes it cleaner
+# Main targets:
+#   make                  -> build common userspace programs only
+#   make module           -> build kernel module only
+#   make tests            -> build all tests
+#   make app/main         -> build main app only
+#   make tests/test_mouse -> build one specific test only
+#   make clean            -> clean module + userspace outputs
 # ============================================================================
 
 KERNEL_SOURCE := /usr/src/linux-headers-$(shell uname -r)
 
-# Compiler for normal userspace programs.
 CC := cc
+CFLAGS := -I driver -I app -Wall -Wextra -g
 
-# Common C flags for userspace code.
-#
-# -I driver
-#   lets userspace test programs include "air_hockey.h" from driver/
-#
-# -Wall -Wextra
-#   enables useful warnings
-#
-# -g
-#   includes debug info 
-CFLAGS := -I driver -Wall -Wextra -g
+# ----------------------------------------------------------------------------
+# Userspace programs
+# ----------------------------------------------------------------------------
 
-# Future-proof variable for test binaries.
-#
-# Right now we only have one test program, but keeping a variable makes it easy
-# to extend later.
-TEST_BINS := tests/test_positions
+TEST_BINS := tests/test_positions tests/test_mouse
+APP_BINS := app/main
 
+.PHONY: default all module tests apps clean help
 
-.PHONY: default all module tests clean help
-
+# Default target:
+# Build userspace only, not the kernel module.
 default: all
 
-all: module tests
+all: tests apps
 
-# Build the kernel module
-#
-# We delegate this to driver/Makefile.
+# ----------------------------------------------------------------------------
+# Kernel module target
+# ----------------------------------------------------------------------------
+
 module:
 	$(MAKE) -C driver KERNEL_SOURCE=$(KERNEL_SOURCE)
 
-# Build all test programs
+# ----------------------------------------------------------------------------
+# Build all userspace tests
+# ----------------------------------------------------------------------------
+
 tests: $(TEST_BINS)
 
-# Userspace test program: test_positions
-#
-# This is a normal C userspace program, not kernel code.
-# It talks to the kernel driver through:
-#   - open("/dev/air_hockey")
-#   - ioctl(...)
-test/test_positions: tests/test_positions.c driver/air_hockey.h
-	$(CC) $(CFLAGS) tests/test_positions.c -o test/test_positions
-
-# Clean everything produced by this software repo
-#
-# This calls the driver clean rule for kernel-module artifacts, and also removes
-# normal userspace test executables.
 # ----------------------------------------------------------------------------
+# Build all userspace apps
+# ----------------------------------------------------------------------------
+
+apps: $(APP_BINS)
+
+# ----------------------------------------------------------------------------
+# Individual userspace build rules
+#
+# Any userspace file that uses game_io_* must link with app/game_io.c.
+# ----------------------------------------------------------------------------
+
+tests/test_positions: tests/test_positions.c app/game_io.c app/game_io.h driver/air_hockey.h
+	$(CC) $(CFLAGS) tests/test_positions.c app/game_io.c -o tests/test_positions
+
+tests/test_mouse: tests/test_mouse.c app/game_io.c app/game_io.h driver/air_hockey.h
+	$(CC) $(CFLAGS) tests/test_mouse.c app/game_io.c -o tests/test_mouse
+
+app/main: app/main.c app/game_io.c app/game_io.h driver/air_hockey.h
+	$(CC) $(CFLAGS) app/main.c app/game_io.c -o app/main
+
+# ----------------------------------------------------------------------------
+# Clean everything
+# ----------------------------------------------------------------------------
+
 clean:
 	$(MAKE) -C driver KERNEL_SOURCE=$(KERNEL_SOURCE) clean
-	rm -f $(TEST_BINS)
+	rm -f $(TEST_BINS) $(APP_BINS)
 
-# ----------------------------------------------------------------------------
-# Optional helper target: print usage
-# ----------------------------------------------------------------------------
 help:
-	@echo "Available targets:"
-	@echo "  make / make all   - build kernel module and test programs"
-	@echo "  make module       - build only the kernel module"
-	@echo "  make tests        - build only userspace tests"
-	@echo "  make clean        - remove generated files"
+	@echo "Targets:"
+	@echo "  make                  - build userspace programs only"
+	@echo "  make module           - build kernel module only"
+	@echo "  make tests            - build all tests"
+	@echo "  make apps             - build all apps"
+	@echo "  make app/main         - build main app only"
+	@echo "  make tests/test_mouse - build only test_mouse"
+	@echo "  make clean            - remove generated files"
