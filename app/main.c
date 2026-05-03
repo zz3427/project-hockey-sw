@@ -65,6 +65,19 @@ void print_time(const char *name, double t) {
     }
 }
 
+static void clamp_puck_to_arena(GameObject *puck) {
+    if (puck->pos.x < 10.0 + puck->radius) {
+        puck->pos.x = 10.0 + puck->radius;
+    } else if (puck->pos.x > 630.0 - puck->radius) {
+        puck->pos.x = 630.0 - puck->radius;
+    }
+    if (puck->pos.y < 10.0 + puck->radius) {
+        puck->pos.y = 10.0 + puck->radius;
+    } else if (puck->pos.y > 470.0 - puck->radius) {
+        puck->pos.y = 470.0 - puck->radius;
+    }
+}
+
 // The core 60 Hz Continuous Collision Detection (CCD) engine
 void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2, 
                    GameObject *top_post, GameObject *bottom_post) {
@@ -73,8 +86,12 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
     int bounce_count = 0;
     const int MAX_BOUNCES = 3; 
 
+    //
+
     while (t_remaining > 0.001 && bounce_count < MAX_BOUNCES) {
 
+        clamp_puck_to_arena(puck); // Ensure puck is within bounds before calculations
+        
         /*
          * Print puck state at the start of this sub-step.
          * This tells us where the puck currently is and how it is moving

@@ -8,6 +8,23 @@ double getWallCollisionTime(const GameObject *puck) {
     double t_min = DBL_MAX;
     double t;
 
+    // Already outside left and still moving left
+    if (puck->pos.x < 10.0 + puck->radius && puck->vel.x < 0) {
+        return 0.0;
+    }
+    // Already outside right and still moving right
+    if (puck->pos.x > 630.0 - puck->radius && puck->vel.x > 0) {
+        return 0.0;
+    }
+    // Already outside top and still moving up
+    if (puck->pos.y < 10.0 + puck->radius && puck->vel.y < 0) {
+        return 0.0;
+    }
+    // Already outside bottom and still moving down
+    if (puck->pos.y > 470.0 - puck->radius && puck->vel.y > 0) {
+        return 0.0;
+    }
+
     // Check Left Wall (X = 10)
     if (puck->vel.x < 0) {
         t = (10.0 + puck->radius - puck->pos.x) / puck->vel.x;
