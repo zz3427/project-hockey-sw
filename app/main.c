@@ -152,14 +152,14 @@ int main() {
 
     int mouse_fd1, mouse_fd2;
 
-    int mouse_fd1 = open(dev_mouse1, O_RDONLY | O_NONBLOCK);
+    mouse_fd1 = open(dev_mouse1, O_RDONLY | O_NONBLOCK);
     if (mouse_fd1 == -1) {
         perror("open(mouse device 1) failed");
         game_io_close();
         return 1;
     }
 
-    int mouse_fd2 = open(dev_mouse2, O_RDONLY | O_NONBLOCK);
+    mouse_fd2 = open(dev_mouse2, O_RDONLY | O_NONBLOCK);
     if (mouse_fd2 == -1) {
         perror("open(mouse device 2) failed");
         game_io_close();
