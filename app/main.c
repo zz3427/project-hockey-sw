@@ -2,7 +2,10 @@
 #include <stdbool.h>
 #include <errno.h>
 
+// For mouse input
 #include <linux/input.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "physics_engine.h"
 #include "game_io.h"
