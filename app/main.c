@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <math.h>
 #include <float.h>
+#include <string.h>
 
 // For mouse input
 #include <linux/input.h>
@@ -19,9 +20,11 @@
 #define Y_MIN    24.0
 #define Y_MAX    455.0
 
-#define IF_DEBUG 1
-
 #define MOUSE_SENSITIVITY 5.0
+
+int debug_physics = 0; // Set to 1 to enable detailed physics debug prints
+
+
  /*
   * Send the current visible game object positions to hardware.
   *
@@ -77,7 +80,7 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
          * This tells us where the puck currently is and how it is moving
          * before we compute collision times.
          */
-        if(IF_DEBUG) {
+        if(debug_physics) {
             fprintf(stderr,
                     "\n[simulate_frame] START step: "
                     "puck pos=(%.4f, %.4f) vel=(%.4f, %.4f) "
@@ -97,7 +100,7 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
          * This is the most important debug line.
          * If one of these is always 0.000000, that is probably your problem.
          */
-        if(IF_DEBUG){
+        if(debug_physics){
             printf("[simulate_frame] times: ");
             print_time("t_wall", t_wall);
             print_time("t_p1", t_p1);
@@ -117,7 +120,7 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
         /*
          * Print the chosen collision time for this sub-step.
          */
-        if(IF_DEBUG) {
+        if(debug_physics) {
             fprintf(stderr,
                     "[simulate_frame] chosen t_c=%.6f\n",
                     t_c);
@@ -128,7 +131,7 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
             puck->pos.x += puck->vel.x * t_remaining;
             puck->pos.y += puck->vel.y * t_remaining;
 
-            if(IF_DEBUG) {
+            if(debug_physics) {
                 fprintf(stderr,
                         "[simulate_frame] no collision in remaining time, "
                         "advanced to pos=(%.4f, %.4f)\n",
@@ -144,22 +147,22 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
             // Identify which collision happened and apply response
             if (t_c == t_p1){
                 applyPaddleCollision(puck, p1, 1.0);
-                if(IF_DEBUG) fprintf(stderr, "[simulate_frame] COLLISION with P1 at t=%.6f\n", t_c);
+                if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with P1 at t=%.6f\n", t_c);
             } else if (t_c == t_p2) {
                 applyPaddleCollision(puck, p2, 1.0);
-                if(IF_DEBUG) fprintf(stderr, "[simulate_frame] COLLISION with P2 at t=%.6f\n", t_c);
+                if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with P2 at t=%.6f\n", t_c);
             } else if (t_c == t_top) {
                 applyPaddleCollision(puck, top_post, 1.0);
-                if(IF_DEBUG) fprintf(stderr, "[simulate_frame] COLLISION with TOP POST at t=%.6f\n", t_c);
+                if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with TOP POST at t=%.6f\n", t_c);
             } else if (t_c == t_bot) {
                 applyPaddleCollision(puck, bottom_post, 1.0);
-                if(IF_DEBUG) fprintf(stderr, "[simulate_frame] COLLISION with BOTTOM POST at t=%.6f\n", t_c);
+                if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with BOTTOM POST at t=%.6f\n", t_c);
             } else if (t_c == t_wall) {
                 applyWallBounce(puck);
-                if(IF_DEBUG) fprintf(stderr, "[simulate_frame] COLLISION with WALL at t=%.6f\n", t_c);
+                if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with WALL at t=%.6f\n", t_c);
             }
             // print puck state after applying collision response
-            if(IF_DEBUG) {
+            if(debug_physics) {
                 fprintf(stderr,
                         "[simulate_frame] after collision response: "
                         "puck pos=(%.4f, %.4f) vel=(%.4f, %.4f)\n",
@@ -176,7 +179,7 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
         // puck->vel.x = 0;
         // puck->vel.y = 0;
         // Prevent infinite loop in extreme edge cases
-        if(IF_DEBUG) {
+        if(debug_physics) {
             fprintf(stderr,
             "simulateFrame: MAX_BOUNCES reached, puck pos=(%.2f, %.2f) vel=(%.2f, %.2f)\n",
             puck->pos.x, puck->pos.y, puck->vel.x, puck->vel.y);
@@ -218,7 +221,15 @@ static void poll_mouse_and_update_paddle(int mouse_fd, GameObject *p,
     }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--debug-physics") == 0) {
+            debug_physics = 1;
+        }
+    }
+
+    if (debug_physics) printf("[main] physics debug enabled\n");
+
     // 1. Initialize Game Objects
     GameObject p1 = {{100.0, 240.0}, {0.0, 0.0}, 20.0}; 
     GameObject p2 = {{540.0, 240.0}, {0.0, 0.0}, 20.0};
