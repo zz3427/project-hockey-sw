@@ -97,13 +97,15 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
          * This is the most important debug line.
          * If one of these is always 0.000000, that is probably your problem.
          */
-        printf("[simulate_frame] times: ");
-        print_time("t_wall", t_wall);
-        print_time("t_p1", t_p1);
-        print_time("t_p2", t_p2);
-        print_time("t_top", t_top);
-        print_time("t_bot", t_bot);
-        printf("\n");
+        if(IF_DEBUG){
+            printf("[simulate_frame] times: ");
+            print_time("t_wall", t_wall);
+            print_time("t_p1", t_p1);
+            print_time("t_p2", t_p2);
+            print_time("t_top", t_top);
+            print_time("t_bot", t_bot);
+            printf("\n");
+        }
         
         double t_c = min_time(t_wall, min_time(t_p1, t_p2));
         t_c = min_time(t_c, min_time(t_top, t_bot));
