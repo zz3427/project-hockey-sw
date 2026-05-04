@@ -14,6 +14,9 @@
 #include "physics_engine.h"
 #include "game_io.h"
 
+#define PADDLE_RADIUS 30.0
+#define PUCK_RADIUS 20.0
+
 #define P1_X_MIN 24.0
 #define P1_X_MAX 320.0
 #define P2_X_MIN 320.0
@@ -273,11 +276,11 @@ int main(int argc, char *argv[]) {
     if (debug_physics) printf("[main] physics debug enabled\n");
 
     // 1. Initialize Game Objects
-    GameObject p1 = {{100.0, 240.0}, {0.0, 0.0}, 20.0}; 
-    GameObject p2 = {{540.0, 240.0}, {0.0, 0.0}, 20.0};
+    GameObject p1 = {{100.0, 240.0}, {0.0, 0.0}, PADDLE_RADIUS}; 
+    GameObject p2 = {{540.0, 240.0}, {0.0, 0.0}, PADDLE_RADIUS};
     GameObject left_top_post = {{0.0, 170.0}, {0.0, 0.0}, 10.0};
     GameObject left_bot_post = {{0.0, 310.0}, {0.0, 0.0}, 10.0};
-    GameObject puck = {{320.0, 240.0}, {0.0, 0.0}, 10.0}; 
+    GameObject puck = {{320.0, 240.0}, {0.0, 0.0}, PUCK_RADIUS}; 
 
     int p1_score = 0;
     int p2_score = 0;
