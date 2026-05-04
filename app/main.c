@@ -204,8 +204,10 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
             }
 
             // print puck speed after collision response
-            double speed = sqrt(puck->vel.x * puck->vel.x + puck->vel.y * puck->vel.y);
-            fprintf(stderr, "[simulate_frame] puck speed after collision=%.4f\n", speed);
+            if(debug_physics) {
+                double speed = sqrt(puck->vel.x * puck->vel.x + puck->vel.y * puck->vel.y);
+                fprintf(stderr, "[simulate_frame] puck speed after collision=%.4f\n", speed);
+            }
 
             t_remaining -= t_c;
             bounce_count++;
