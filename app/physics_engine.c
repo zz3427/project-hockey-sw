@@ -143,31 +143,66 @@ void applyPaddleCollision(GameObject *puck, const GameObject *paddle, double res
     puck->vel.y = (V_puck_n_new * ny) + (V_puck_t_new * ty);
 }
 
-// ---------------------------------------------------------
-// Section 3.2.1: Flat Wall Bounce Resolution
-// ---------------------------------------------------------
+
+//Gerald's version
 void applyWallBounce(GameObject *puck) {
-    // Floating point math can be slightly imprecise. 
-    // We use a tiny epsilon (0.001) to safely check boundaries.
-    
-    // Check Vertical Walls (Flip X)
-    if (puck->pos.x <= 10.0 + puck->radius + 0.001 || 
-        puck->pos.x >= 630.0 - puck->radius - 0.001) {
-        
-        // Only flip if it's actually heading into the wall (prevents sticking)
-        if ((puck->pos.x < 320.0 && puck->vel.x < 0) || 
-            (puck->pos.x > 320.0 && puck->vel.x > 0)) {
-            puck->vel.x = -puck->vel.x;
-        }
+    const double EPS = 0.001;
+
+    double left_bound   = 10.0 + puck->radius;
+    double right_bound  = 630.0 - puck->radius;
+    double top_bound    = 10.0 + puck->radius;
+    double bottom_bound = 470.0 - puck->radius;
+
+    // Left wall
+    if (puck->pos.x <= left_bound + EPS && puck->vel.x < 0) {
+        puck->pos.x = left_bound + EPS;
+        puck->vel.x = -puck->vel.x;
     }
 
-    // Check Horizontal Walls (Flip Y)
-    if (puck->pos.y <= 10.0 + puck->radius + 0.001 || 
-        puck->pos.y >= 470.0 - puck->radius - 0.001) {
-        
-        if ((puck->pos.y < 240.0 && puck->vel.y < 0) || 
-            (puck->pos.y > 240.0 && puck->vel.y > 0)) {
-            puck->vel.y = -puck->vel.y;
-        }
+    // Right wall
+    else if (puck->pos.x >= right_bound - EPS && puck->vel.x > 0) {
+        puck->pos.x = right_bound - EPS;
+        puck->vel.x = -puck->vel.x;
+    }
+
+    // Top wall
+    if (puck->pos.y <= top_bound + EPS && puck->vel.y < 0) {
+        puck->pos.y = top_bound + EPS;
+        puck->vel.y = -puck->vel.y;
+    }
+
+    // Bottom wall
+    else if (puck->pos.y >= bottom_bound - EPS && puck->vel.y > 0) {
+        puck->pos.y = bottom_bound - EPS;
+        puck->vel.y = -puck->vel.y;
     }
 }
+
+// // ---------------------------------------------------------
+// // Section 3.2.1: Flat Wall Bounce Resolution
+// // ---------------------------------------------------------
+// void applyWallBounce(GameObject *puck) {
+//     // Floating point math can be slightly imprecise. 
+//     // We use a tiny epsilon (0.001) to safely check boundaries.
+    
+//     // Check Vertical Walls (Flip X)
+//     if (puck->pos.x <= 10.0 + puck->radius + 0.001 || 
+//         puck->pos.x >= 630.0 - puck->radius - 0.001) {
+        
+//         // Only flip if it's actually heading into the wall (prevents sticking)
+//         if ((puck->pos.x < 320.0 && puck->vel.x < 0) || 
+//             (puck->pos.x > 320.0 && puck->vel.x > 0)) {
+//             puck->vel.x = -puck->vel.x;
+//         }
+//     }
+
+//     // Check Horizontal Walls (Flip Y)
+//     if (puck->pos.y <= 10.0 + puck->radius + 0.001 || 
+//         puck->pos.y >= 470.0 - puck->radius - 0.001) {
+        
+//         if ((puck->pos.y < 240.0 && puck->vel.y < 0) || 
+//             (puck->pos.y > 240.0 && puck->vel.y > 0)) {
+//             puck->vel.y = -puck->vel.y;
+//         }
+//     }
+// }
