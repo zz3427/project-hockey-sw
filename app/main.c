@@ -20,7 +20,9 @@
 #define Y_MIN    24.0
 #define Y_MAX    455.0
 
-#define MOUSE_SENSITIVITY 5.0
+#define MOUSE_SENSITIVITY 1.0
+#define MAX_PADDLE_SPEED 40.0
+#define RESTITUTION 0.2
 
 int debug_physics = 0; // Set to 1 to enable detailed physics debug prints
 
@@ -163,16 +165,16 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
             
             // Identify which collision happened and apply response
             if (t_c == t_p1){
-                applyPaddleCollision(puck, p1, 1.0);
+                applyPaddleCollision(puck, p1, RESTITUTION);
                 if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with P1 at t=%.6f\n", t_c);
             } else if (t_c == t_p2) {
-                applyPaddleCollision(puck, p2, 1.0);
+                applyPaddleCollision(puck, p2, RESTITUTION);
                 if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with P2 at t=%.6f\n", t_c);
             } else if (t_c == t_top) {
-                applyPaddleCollision(puck, top_post, 1.0);
+                applyPaddleCollision(puck, top_post, RESTITUTION);
                 if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with TOP POST at t=%.6f\n", t_c);
             } else if (t_c == t_bot) {
-                applyPaddleCollision(puck, bottom_post, 1.0);
+                applyPaddleCollision(puck, bottom_post, RESTITUTION);
                 if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with BOTTOM POST at t=%.6f\n", t_c);
             } else if (t_c == t_wall) {
                 applyWallBounce(puck);
@@ -229,12 +231,15 @@ static void poll_mouse_and_update_paddle(int mouse_fd, GameObject *p,
         }
     }
 
-    p->vel.x = dx * MOUSE_SENSITIVITY;
-    p->vel.y = dy * MOUSE_SENSITIVITY;
+    double move_x = dx * MOUSE_SENSITIVITY;
+    double move_y = dy * MOUSE_SENSITIVITY;
+
+    p->vel.x = clamp_double(move_x, -MAX_PADDLE_SPEED, MAX_PADDLE_SPEED);
+    p->vel.y = clamp_double(move_y, -MAX_PADDLE_SPEED, MAX_PADDLE_SPEED);
 
     if (dx != 0 || dy != 0) {
-        p->pos.x = clamp_double(p->pos.x + dx, x_min, x_max);
-        p->pos.y = clamp_double(p->pos.y + dy, y_min, y_max);
+        p->pos.x = clamp_double(p->pos.x + move_x, x_min, x_max);
+        p->pos.y = clamp_double(p->pos.y + move_y, y_min, y_max);
     }
 }
 
