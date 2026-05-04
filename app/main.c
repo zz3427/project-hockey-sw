@@ -23,6 +23,7 @@
 #define MOUSE_SENSITIVITY 1.0
 #define MAX_PADDLE_SPEED 40.0
 #define RESTITUTION 0.2
+#define MAX_PUCK_SPEED 80.0
 
 int debug_physics = 0; // Set to 1 to enable detailed physics debug prints
 
@@ -77,6 +78,17 @@ static void clamp_puck_to_arena(GameObject *puck) {
         puck->pos.y = 10.0 + puck->radius;
     } else if (puck->pos.y > 470.0 - puck->radius) {
         puck->pos.y = 470.0 - puck->radius;
+    }
+}
+
+static void clamp_object_speed(GameObject *obj, double max_speed)
+{
+    double speed = sqrt(obj->vel.x * obj->vel.x + obj->vel.y * obj->vel.y);
+
+    if (speed > max_speed) {
+        double scale = max_speed / speed;
+        obj->vel.x *= scale;
+        obj->vel.y *= scale;
     }
 }
 
@@ -180,6 +192,7 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
                 applyWallBounce(puck);
                 if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with WALL at t=%.6f\n", t_c);
             }
+            clamp_object_speed(puck, MAX_PUCK_SPEED); // Ensure puck doesn't exceed max speed after collision
             // print puck state after applying collision response
             if(debug_physics) {
                 fprintf(stderr,
