@@ -23,8 +23,8 @@
 
 #define MOUSE_SENSITIVITY 1.0
 #define MAX_PADDLE_SPEED 40.0
-#define RESTITUTION 0.2
-#define MAX_PUCK_SPEED 0.08
+#define RESTITUTION 0.7
+#define MAX_PUCK_SPEED 80.0
 
 int debug_physics = 0; // Set to 1 to enable detailed physics debug prints
 
