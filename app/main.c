@@ -190,7 +190,7 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
                 applyPaddleCollision(puck, bottom_post, RESTITUTION);
                 if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with BOTTOM POST at t=%.6f\n", t_c);
             } else if (t_c == t_wall) {
-                applyWallBounce(puck);
+                applyWallBounce(puck, RESTITUTION);
                 if(debug_physics) fprintf(stderr, "[simulate_frame] COLLISION with WALL at t=%.6f\n", t_c);
             }
             clamp_object_speed(puck, MAX_PUCK_SPEED); // Ensure puck doesn't exceed max speed after collision
