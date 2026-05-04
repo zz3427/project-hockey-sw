@@ -105,8 +105,13 @@ unsigned int game_io_read_status(void)
 
 void game_io_wait_for_vsync(void)
 {
+    //If already in VBlank, wait for it to end first (prevents accidental double-sync if this is called multiple times per frame)
+    while ((game_io_read_status() & AIR_HOCKEY_STATUS_VSYNC_READY) != 0) {
+        usleep(50);
+    }
+    //wait for the next VBlank to begin.
     while ((game_io_read_status() & AIR_HOCKEY_STATUS_VSYNC_READY) == 0) {
-        /* busy-wait */
+        usleep(50);
     }
 }
 
