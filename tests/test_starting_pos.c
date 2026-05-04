@@ -58,11 +58,6 @@ int main(void)
 {
     printf("Starting GameObject -> game_io VGA test\n");
 
-    if (game_io_init() != 0) {
-        printf("ERROR: game_io_init() failed\n");
-        return 1;
-    }
-
     GameObject puck;
     GameObject p1;
     GameObject p2;
