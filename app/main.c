@@ -9,6 +9,7 @@
 #include <linux/input.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include "physics_engine.h"
 #include "game_io.h"
@@ -23,7 +24,7 @@
 #define MOUSE_SENSITIVITY 1.0
 #define MAX_PADDLE_SPEED 40.0
 #define RESTITUTION 0.2
-#define MAX_PUCK_SPEED 80.0
+#define MAX_PUCK_SPEED 0.8
 
 int debug_physics = 0; // Set to 1 to enable detailed physics debug prints
 
@@ -308,6 +309,26 @@ int main(int argc, char *argv[]) {
 
     // 2. Main Hardware Game Loop
     while (1) {
+        static int frame_count = 0;
+        static struct timespec last_time = {0, 0};
+
+        struct timespec now;
+        clock_gettime(CLOCK_MONOTONIC, &now);
+        if(last_time.tv_sec == 0){
+            last_time = now;
+        }
+        frame_count++;
+
+        double elapsed =
+            (now.tv_sec - last_time.tv_sec) +
+            (now.tv_nsec - last_time.tv_nsec) / 1000000000.0;
+
+        if (elapsed >= 1.0) {
+            fprintf(stderr, "[main] FPS = %d\n", frame_count);
+            frame_count = 0;
+            last_time = now;
+        }
+
         // Wait for VGA to finish drawing the current frame (60 Hz sync)
         game_io_wait_for_vsync();
 
