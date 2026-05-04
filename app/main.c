@@ -91,7 +91,7 @@ void simulate_frame(GameObject *puck, GameObject *p1, GameObject *p2,
     while (t_remaining > 0.001 && bounce_count < MAX_BOUNCES) {
 
         clamp_puck_to_arena(puck); // Ensure puck is within bounds before calculations
-        
+
         /*
          * Print puck state at the start of this sub-step.
          * This tells us where the puck currently is and how it is moving
@@ -252,7 +252,7 @@ int main(int argc, char *argv[]) {
     GameObject p2 = {{540.0, 240.0}, {0.0, 0.0}, 20.0};
     GameObject left_top_post = {{0.0, 170.0}, {0.0, 0.0}, 10.0};
     GameObject left_bot_post = {{0.0, 310.0}, {0.0, 0.0}, 10.0};
-    GameObject puck = {{320.0, 240.0}, {-20.0, -15.0}, 10.0}; 
+    GameObject puck = {{320.0, 240.0}, {0.0, 0.0}, 10.0}; 
 
     int p1_score = 0;
     int p2_score = 0;
