@@ -27,7 +27,7 @@ CFLAGS := -I driver -I app -Wall -Wextra -g
 # Userspace programs
 # ----------------------------------------------------------------------------
 
-TEST_BINS := tests/test_positions tests/test_mouse
+TEST_BINS := tests/test_positions tests/test_mouse tests/test_starting_pos
 APP_BINS := app/main
 
 .PHONY: default all module tests apps clean help
@@ -69,6 +69,9 @@ tests/test_positions: tests/test_positions.c app/game_io.c app/game_io.h driver/
 tests/test_mouse: tests/test_mouse.c app/game_io.c app/game_io.h driver/air_hockey.h
 	$(CC) $(CFLAGS) tests/test_mouse.c app/game_io.c -o tests/test_mouse
 
+tests/test_starting_pos: tests/test_starting_pos.c app/game_io.c app/game_io.h driver/air_hockey.h
+	$(CC) $(CFLAGS) tests/test_starting_pos.c app/game_io.c -o tests/test_starting_pos
+
 app/main: app/main.c app/game_io.c app/physics_engine.c app/physics_engine.h app/game_io.h driver/air_hockey.h
 	$(CC) $(CFLAGS) app/main.c app/game_io.c app/physics_engine.c -o app/main -lm
 
@@ -88,4 +91,6 @@ help:
 	@echo "  make apps             - build all apps"
 	@echo "  make app/main         - build main app only"
 	@echo "  make tests/test_mouse - build only test_mouse"
+	@echo "  make tests/test_starting_pos - build only test_starting_pos"
+	@echo "  make help             - show this help message"
 	@echo "  make clean            - remove generated files"
