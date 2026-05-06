@@ -31,6 +31,49 @@ static void print_time(const char *name, double t)
     }
 }
 
+static int puck_y_is_inside_goal_opening(double y)
+{
+    return y >= GOAL_TOP && y <= GOAL_BOTTOM;
+}
+
+/*
+ * Return 1 if the wall collision predicted by getWallCollisionTime()
+ * is actually the puck entering the left/right goal opening.
+ *
+ * In that case, simulate_frame should NOT bounce the puck off the wall.
+ * It should let the puck pass through so game_score.c can detect the goal.
+ */
+static int wall_collision_is_goal_exit(const GameObject *puck, double t_wall)
+{
+    if (t_wall == DBL_MAX || isinf(t_wall)) {
+        return 0;
+    }
+
+    const double EPS = 0.001;
+
+    double hit_x = puck->pos.x + puck->vel.x * t_wall;
+    double hit_y = puck->pos.y + puck->vel.y * t_wall;
+
+    double left_bound = WALL_LEFT + puck->radius;
+    double right_bound = WALL_RIGHT - puck->radius;
+
+    if (!puck_y_is_inside_goal_opening(hit_y)) {
+        return 0;
+    }
+
+    // Left goal opening: puck reaches left wall while moving left.
+    if (puck->vel.x < 0.0 && hit_x <= left_bound + EPS) {
+        return 1;
+    }
+
+    // Right goal opening: puck reaches right wall while moving right.
+    if (puck->vel.x > 0.0 && hit_x >= right_bound - EPS) {
+        return 1;
+    }
+
+    return 0;
+}
+
 static void clamp_puck_to_arena(GameObject *puck)
 {
     if (puck->pos.x < WALL_LEFT + puck->radius) {
@@ -89,6 +132,22 @@ void simulate_frame(GameObject *puck,
         }
 
         double t_wall = getWallCollisionTime(puck);
+
+        /*
+         * Important:
+         * A left/right wall collision inside the goal opening is not a bounce.
+         * It means the puck is entering the goal. Ignore this wall collision
+         * and let the puck move through the opening.
+         */
+        if (wall_collision_is_goal_exit(puck, t_wall)) {
+            if (debug_physics) {
+                fprintf(stderr,
+                        "[simulate_frame] wall collision ignored: puck entering goal opening\n");
+            }
+
+            t_wall = DBL_MAX;
+        }
+
         double t_p1   = getPaddleCollisionTime(puck, p1);
         double t_p2   = getPaddleCollisionTime(puck, p2);
         double t_top  = getPaddleCollisionTime(puck, top_post);
