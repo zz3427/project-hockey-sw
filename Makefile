@@ -72,8 +72,18 @@ tests/test_mouse: tests/test_mouse.c app/game_io.c app/game_io.h driver/air_hock
 tests/test_starting_pos: tests/test_starting_pos.c app/game_io.c app/game_io.h driver/air_hockey.h
 	$(CC) $(CFLAGS) tests/test_starting_pos.c app/game_io.c -o tests/test_starting_pos
 
-app/main: app/main.c app/game_io.c app/physics_engine.c app/physics_engine.h app/game_io.h driver/air_hockey.h
-	$(CC) $(CFLAGS) app/main.c app/game_io.c app/physics_engine.c -o app/main -lm
+app/main: app/main.c \
+          app/game_io.c \
+          app/physics_engine.c \
+          app/game_sim.c \
+          app/game_input.c \
+          app/game_io.h \
+          app/physics_engine.h \
+          app/game_config.h \
+          app/game_sim.h \
+          app/game_input.h \
+          driver/air_hockey.h
+	$(CC) $(CFLAGS) app/main.c app/game_io.c app/physics_engine.c app/game_sim.c app/game_input.c -o app/main -lm
 
 # ----------------------------------------------------------------------------
 # Clean everything
