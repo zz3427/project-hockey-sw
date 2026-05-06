@@ -78,14 +78,17 @@ app/main: app/main.c \
           app/game_sim.c \
           app/game_input.c \
           app/game_render.c \
+          app/game_score.c \
           app/game_io.h \
           app/physics_engine.h \
           app/game_config.h \
           app/game_sim.h \
           app/game_input.h \
           app/game_render.h \
+          app/game_score.h \
           driver/air_hockey.h
-	$(CC) $(CFLAGS) app/main.c app/game_io.c app/physics_engine.c app/game_sim.c app/game_input.c app/game_render.c -o app/main -lm
+	$(CC) $(CFLAGS) app/main.c app/game_io.c app/physics_engine.c app/game_sim.c app/game_input.c app/game_render.c app/game_score.c -o app/main -lm
+	
 # ----------------------------------------------------------------------------
 # Clean everything
 # ----------------------------------------------------------------------------

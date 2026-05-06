@@ -92,8 +92,8 @@ int main(int argc, char *argv[]) {
 
         // TODO: Read /dev/input/mice evdev accumulators here and apply to p1.pos and p2.pos
         // STEP 1: Read input nonblocking, and update paddle
-        poll_mouse_and_update_paddle(mouse_fd1, &p1, P1_X_MIN, P1_X_MAX, Y_MIN, Y_MAX);
-        poll_mouse_and_update_paddle(mouse_fd2, &p2, P2_X_MIN, P2_X_MAX, Y_MIN, Y_MAX);
+        poll_mouse_and_update_paddle(mouse_fd1, &p1, P1_X_MIN, P1_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX);
+        poll_mouse_and_update_paddle(mouse_fd2, &p2, P2_X_MIN, P2_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX);
         
         
 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
 
         // STEP 3: Detect goal / update game_state / score
         // If goal: update scores, reset puck to center, game_state = 1
-
+        handle_score_update(&puck, &p1, &p2, &p1_score, &p2_score);
         // STEP 4: Decide sound event for this frame
 
         // STEP 5: Push all state to hardware
