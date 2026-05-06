@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "game_score.h"
 #include "game_config.h"
 
@@ -58,12 +60,14 @@ void handle_score_update(GameObject *puck,
             (*p1_score)++;
         }
 
+        fprintf(stderr, "[GOAL] P1 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);    
         reset_after_goal(puck, p1, p2);
     } else if (goal == GOAL_P2_SCORED) {
         if (*p2_score < MAX_SCORE) {
             (*p2_score)++;
         }
-
+        
+        fprintf(stderr, "[GOAL] P2 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
         reset_after_goal(puck, p1, p2);
     }
 }

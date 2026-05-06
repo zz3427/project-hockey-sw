@@ -67,6 +67,7 @@ int main(int argc, char *argv[]) {
 
     // 2. Main Hardware Game Loop
     while (1) {
+        /*
         static int frame_count = 0;
         static struct timespec last_time = {0, 0};
 
@@ -86,6 +87,7 @@ int main(int argc, char *argv[]) {
             frame_count = 0;
             last_time = now;
         }
+        */
 
         // Wait for VGA to finish drawing the current frame (60 Hz sync)
         game_io_wait_for_vsync();
