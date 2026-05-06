@@ -15,6 +15,7 @@
 #include "game_render.h"
 #include "game_sim.h"
 #include "game_input.h"
+#include "game_score.h"
 
 int debug_physics = 0; // Set to 1 to enable detailed physics debug prints
 
