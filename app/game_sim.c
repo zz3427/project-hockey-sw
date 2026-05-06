@@ -76,10 +76,27 @@ static int wall_collision_is_goal_exit(const GameObject *puck, double t_wall)
 
 static void clamp_puck_to_arena(GameObject *puck)
 {
-    if (puck->pos.x < WALL_LEFT + puck->radius) {
-        puck->pos.x = WALL_LEFT + puck->radius;
-    } else if (puck->pos.x > WALL_RIGHT - puck->radius) {
-        puck->pos.x = WALL_RIGHT - puck->radius;
+    int in_goal_y =
+        puck->pos.y >= GOAL_TOP &&
+        puck->pos.y <= GOAL_BOTTOM;
+
+    /*
+     * If puck is inside the goal opening and moving outward,
+     * allow it to pass beyond the left/right wall so score detection
+     * can happen after it visibly enters the goal.
+     */
+    int exiting_left_goal =
+        in_goal_y && puck->vel.x < 0.0 && puck->pos.x <= WALL_LEFT + puck->radius;
+
+    int exiting_right_goal =
+        in_goal_y && puck->vel.x > 0.0 && puck->pos.x >= WALL_RIGHT - puck->radius;
+
+    if (!exiting_left_goal && !exiting_right_goal) {
+        if (puck->pos.x < WALL_LEFT + puck->radius) {
+            puck->pos.x = WALL_LEFT + puck->radius;
+        } else if (puck->pos.x > WALL_RIGHT - puck->radius) {
+            puck->pos.x = WALL_RIGHT - puck->radius;
+        }
     }
 
     if (puck->pos.y < WALL_TOP + puck->radius) {

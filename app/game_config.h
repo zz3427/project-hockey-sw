@@ -50,6 +50,11 @@
 #define MAX_PUCK_SPEED    80.0
 #define RESTITUTION       0.7
 
+// Goal detection threshold.
+// Score only after puck has visibly entered the goal/off-screen area.
+#define LEFT_GOAL_SCORE_X   (WALL_LEFT - PUCK_RADIUS)
+#define RIGHT_GOAL_SCORE_X  (WALL_RIGHT + PUCK_RADIUS)
+
 // Simulation tuning
 #define MAX_BOUNCES 3
 #define MIN_FRAME_TIME_REMAINING 0.001
