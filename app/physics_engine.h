@@ -14,7 +14,7 @@ typedef struct {
     double radius;
 } GameObject;
 
-double getWallCollisionTime(const GameObject *puck);
+double get_wall_collision_time(const GameObject *puck);
 double getPaddleCollisionTime(const GameObject *puck, const GameObject *paddle);
 void applyPaddleCollision(GameObject *puck, const GameObject *paddle, double restitution);
 void applyWallBounce(GameObject *puck, double restitution);
