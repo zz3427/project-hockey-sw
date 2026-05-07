@@ -6,22 +6,20 @@
 #include "physics_engine.h"
 #include "game_config.h"
 
-/*
- * debug_physics is defined in main.c for now.
- *
- * Later, we can move it into game_debug.c, but for this step,
- * this lets game_sim.c use your current command-line debug flag
- * without changing too much at once.
- */
 extern int debug_physics;
 
-// Helper function for sub-frame loop
+typedef enum {
+    COLLISION_NONE = 0,
+    COLLISION_WALL,
+    COLLISION_P1,
+    COLLISION_P2
+} CollisionType;
+
 static double min_time(double a, double b)
 {
     return (a < b) ? a : b;
 }
 
-// TODO: later move this to game_debug.c
 static void print_time(const char *name, double t)
 {
     if (t == DBL_MAX || isinf(t)) {
@@ -36,60 +34,24 @@ static int puck_y_is_inside_goal_opening(double y)
     return y >= GOAL_TOP && y <= GOAL_BOTTOM;
 }
 
-/*
- * Return 1 if the wall collision predicted by getWallCollisionTime()
- * is actually the puck entering the left/right goal opening.
- *
- * In that case, simulate_frame should NOT bounce the puck off the wall.
- * It should let the puck pass through so game_score.c can detect the goal.
- */
-static int wall_collision_is_goal_exit(const GameObject *puck, double t_wall)
-{
-    if (t_wall == DBL_MAX || isinf(t_wall)) {
-        return 0;
-    }
-
-    const double EPS = 0.001;
-
-    double hit_x = puck->pos.x + puck->vel.x * t_wall;
-    double hit_y = puck->pos.y + puck->vel.y * t_wall;
-
-    double left_bound = PLAY_LEFT + puck->radius;
-    double right_bound = PLAY_RIGHT - puck->radius;
-
-    if (!puck_y_is_inside_goal_opening(hit_y)) {
-        return 0;
-    }
-
-    // Left goal opening: puck reaches left wall while moving left.
-    if (puck->vel.x < 0.0 && hit_x <= left_bound + EPS) {
-        return 1;
-    }
-
-    // Right goal opening: puck reaches right wall while moving right.
-    if (puck->vel.x > 0.0 && hit_x >= right_bound - EPS) {
-        return 1;
-    }
-
-    return 0;
-}
-
 static void clamp_puck_to_arena(GameObject *puck)
 {
-    int in_goal_y =
-        puck->pos.y >= GOAL_TOP &&
-        puck->pos.y <= GOAL_BOTTOM;
+    int in_goal_y = puck_y_is_inside_goal_opening(puck->pos.y);
 
     /*
      * If puck is inside the goal opening and moving outward,
-     * allow it to pass beyond the left/right wall so score detection
-     * can happen after it visibly enters the goal.
+     * allow it to pass beyond the left/right playable edge.
+     * Score detection will reset it later.
      */
     int exiting_left_goal =
-        in_goal_y && puck->vel.x < 0.0 && puck->pos.x <= PLAY_LEFT + puck->radius;
+        in_goal_y &&
+        puck->vel.x < 0.0 &&
+        puck->pos.x <= PLAY_LEFT + puck->radius;
 
     int exiting_right_goal =
-        in_goal_y && puck->vel.x > 0.0 && puck->pos.x >= PLAY_RIGHT - puck->radius;
+        in_goal_y &&
+        puck->vel.x > 0.0 &&
+        puck->pos.x >= PLAY_RIGHT - puck->radius;
 
     if (!exiting_left_goal && !exiting_right_goal) {
         if (puck->pos.x < PLAY_LEFT + puck->radius) {
@@ -117,12 +79,85 @@ static void clamp_object_speed(GameObject *obj, double max_speed)
     }
 }
 
-// The core 60 Hz Continuous Collision Detection (CCD) engine
+/*
+ * Wall collision with goal opening.
+ *
+ * This replaces the fake post idea.
+ *
+ * Return DBL_MAX if:
+ *   - no wall collision this frame, or
+ *   - puck would cross left/right wall through the goal opening.
+ *
+ * Return a collision time if:
+ *   - puck hits top/bottom wall, or
+ *   - puck hits left/right wall outside the goal opening.
+ */
+static double get_segmented_wall_collision_time(const GameObject *puck)
+{
+    double t_min = DBL_MAX;
+    double t;
+
+    /*
+     * Left/right walls.
+     * These are solid only outside the goal opening.
+     */
+    if (puck->vel.x < 0.0) {
+        t = (PLAY_LEFT + puck->radius - puck->pos.x) / puck->vel.x;
+
+        if (t >= 0.0) {
+            double hit_y = puck->pos.y + puck->vel.y * t;
+
+            if (!puck_y_is_inside_goal_opening(hit_y)) {
+                if (t < t_min) t_min = t;
+            } else {
+                if (debug_physics) {
+                    fprintf(stderr,
+                            "[wall] left goal opening: not bouncing, hit_y=%.4f\n",
+                            hit_y);
+                }
+            }
+        }
+    } else if (puck->vel.x > 0.0) {
+        t = (PLAY_RIGHT - puck->radius - puck->pos.x) / puck->vel.x;
+
+        if (t >= 0.0) {
+            double hit_y = puck->pos.y + puck->vel.y * t;
+
+            if (!puck_y_is_inside_goal_opening(hit_y)) {
+                if (t < t_min) t_min = t;
+            } else {
+                if (debug_physics) {
+                    fprintf(stderr,
+                            "[wall] right goal opening: not bouncing, hit_y=%.4f\n",
+                            hit_y);
+                }
+            }
+        }
+    }
+
+    /*
+     * Top/bottom walls are always solid.
+     */
+    if (puck->vel.y < 0.0) {
+        t = (PLAY_TOP + puck->radius - puck->pos.y) / puck->vel.y;
+
+        if (t >= 0.0 && t < t_min) {
+            t_min = t;
+        }
+    } else if (puck->vel.y > 0.0) {
+        t = (PLAY_BOTTOM - puck->radius - puck->pos.y) / puck->vel.y;
+
+        if (t >= 0.0 && t < t_min) {
+            t_min = t;
+        }
+    }
+
+    return t_min;
+}
+
 void simulate_frame(GameObject *puck,
                     GameObject *p1,
-                    GameObject *p2,
-                    GameObject *top_post,
-                    GameObject *bottom_post)
+                    GameObject *p2)
 {
     double t_remaining = 1.0;
     int bounce_count = 0;
@@ -130,14 +165,8 @@ void simulate_frame(GameObject *puck,
     while (t_remaining > MIN_FRAME_TIME_REMAINING &&
            bounce_count < MAX_BOUNCES) {
 
-        // Ensure puck is within bounds before calculations
         clamp_puck_to_arena(puck);
 
-        /*
-         * Print puck state at the start of this sub-step.
-         * This tells us where the puck currently is and how it is moving
-         * before we compute collision times.
-         */
         if (debug_physics) {
             fprintf(stderr,
                     "\n[simulate_frame] START step: "
@@ -148,62 +177,39 @@ void simulate_frame(GameObject *puck,
                     t_remaining, bounce_count);
         }
 
-        double t_wall = getWallCollisionTime(puck);
-
-        /*
-         * Important:
-         * A left/right wall collision inside the goal opening is not a bounce.
-         * It means the puck is entering the goal. Ignore this wall collision
-         * and let the puck move through the opening.
-         */
-        if (wall_collision_is_goal_exit(puck, t_wall)) {
-            if (debug_physics) {
-                fprintf(stderr,
-                        "[simulate_frame] wall collision ignored: puck entering goal opening\n");
-            }
-
-            t_wall = DBL_MAX;
-        }
-
+        double t_wall = get_segmented_wall_collision_time(puck);
         double t_p1   = getPaddleCollisionTime(puck, p1);
         double t_p2   = getPaddleCollisionTime(puck, p2);
-        double t_top  = getPaddleCollisionTime(puck, top_post);
-        double t_bot  = getPaddleCollisionTime(puck, bottom_post);
 
-        /*
-         * Print all candidate collision times.
-         * This is the most important debug line.
-         * If one of these is always 0.000000, that is probably your problem.
-         */
         if (debug_physics) {
             printf("[simulate_frame] times: ");
             print_time("t_wall", t_wall);
             print_time("t_p1", t_p1);
             print_time("t_p2", t_p2);
-            print_time("t_top", t_top);
-            print_time("t_bot", t_bot);
             printf("\n");
         }
 
         double t_c = min_time(t_wall, min_time(t_p1, t_p2));
-        t_c = min_time(t_c, min_time(t_top, t_bot));
 
-        // Minimum time threshold to avoid repeated zero-time collision loops
+        CollisionType collision_type = COLLISION_NONE;
+
+        if (t_c == t_wall) {
+            collision_type = COLLISION_WALL;
+        } else if (t_c == t_p1) {
+            collision_type = COLLISION_P1;
+        } else if (t_c == t_p2) {
+            collision_type = COLLISION_P2;
+        }
+
         if (t_c < MIN_COLLISION_TIME) {
             t_c = MIN_COLLISION_TIME;
         }
 
-        /*
-         * Print the chosen collision time for this sub-step.
-         */
         if (debug_physics) {
-            fprintf(stderr,
-                    "[simulate_frame] chosen t_c=%.6f\n",
-                    t_c);
+            fprintf(stderr, "[simulate_frame] chosen t_c=%.6f\n", t_c);
         }
 
-        if (t_c >= t_remaining) {
-            // No collision within remaining time, just move puck to end of frame
+        if (t_c >= t_remaining || t_c == DBL_MAX || isinf(t_c)) {
             puck->pos.x += puck->vel.x * t_remaining;
             puck->pos.y += puck->vel.y * t_remaining;
 
@@ -216,48 +222,28 @@ void simulate_frame(GameObject *puck,
 
             t_remaining = 0.0;
         } else {
-            // Move puck to collision point first
             puck->pos.x += puck->vel.x * t_c;
             puck->pos.y += puck->vel.y * t_c;
 
-            /*
-             * Identify which collision happened and apply response.
-             *
-             * This keeps your current structure exactly:
-             * - paddle/post collision uses applyPaddleCollision()
-             * - wall collision uses applyWallBounce()
-             * - all use RESTITUTION from game_config.h
-             */
-            if (t_c == t_p1) {
-                applyPaddleCollision(puck, p1, RESTITUTION);
+            if (collision_type == COLLISION_P1) {
+                applyPaddleCollision(puck, p1, PADDLE_RESTITUTION);
+
                 if (debug_physics) {
                     fprintf(stderr,
                             "[simulate_frame] COLLISION with P1 at t=%.6f\n",
                             t_c);
                 }
-            } else if (t_c == t_p2) {
-                applyPaddleCollision(puck, p2, RESTITUTION);
+            } else if (collision_type == COLLISION_P2) {
+                applyPaddleCollision(puck, p2, PADDLE_RESTITUTION);
+
                 if (debug_physics) {
                     fprintf(stderr,
                             "[simulate_frame] COLLISION with P2 at t=%.6f\n",
                             t_c);
                 }
-            } else if (t_c == t_top) {
-                applyPaddleCollision(puck, top_post, RESTITUTION);
-                if (debug_physics) {
-                    fprintf(stderr,
-                            "[simulate_frame] COLLISION with TOP POST at t=%.6f\n",
-                            t_c);
-                }
-            } else if (t_c == t_bot) {
-                applyPaddleCollision(puck, bottom_post, RESTITUTION);
-                if (debug_physics) {
-                    fprintf(stderr,
-                            "[simulate_frame] COLLISION with BOTTOM POST at t=%.6f\n",
-                            t_c);
-                }
-            } else if (t_c == t_wall) {
-                applyWallBounce(puck, RESTITUTION);
+            } else if (collision_type == COLLISION_WALL) {
+                applyWallBounce(puck, WALL_RESTITUTION);
+
                 if (debug_physics) {
                     fprintf(stderr,
                             "[simulate_frame] COLLISION with WALL at t=%.6f\n",
@@ -265,24 +251,17 @@ void simulate_frame(GameObject *puck,
                 }
             }
 
-            // Ensure puck does not exceed max speed after collision
             clamp_object_speed(puck, MAX_PUCK_SPEED);
 
-            // Print puck state after applying collision response
-            if (debug_physics) {
-                fprintf(stderr,
-                        "[simulate_frame] after collision response: "
-                        "puck pos=(%.4f, %.4f) vel=(%.4f, %.4f)\n",
-                        puck->pos.x, puck->pos.y,
-                        puck->vel.x, puck->vel.y);
-            }
-
-            // Print puck speed after collision response
             if (debug_physics) {
                 double speed = sqrt(puck->vel.x * puck->vel.x +
                                     puck->vel.y * puck->vel.y);
+
                 fprintf(stderr,
-                        "[simulate_frame] puck speed after collision=%.4f\n",
+                        "[simulate_frame] after collision response: "
+                        "puck pos=(%.4f, %.4f) vel=(%.4f, %.4f) speed=%.4f\n",
+                        puck->pos.x, puck->pos.y,
+                        puck->vel.x, puck->vel.y,
                         speed);
             }
 
@@ -291,14 +270,11 @@ void simulate_frame(GameObject *puck,
         }
     }
 
-    if (bounce_count >= MAX_BOUNCES) {
-        // Prevent infinite loop in extreme edge cases
-        if (debug_physics) {
-            fprintf(stderr,
-                    "simulateFrame: MAX_BOUNCES reached, "
-                    "puck pos=(%.2f, %.2f) vel=(%.2f, %.2f)\n",
-                    puck->pos.x, puck->pos.y,
-                    puck->vel.x, puck->vel.y);
-        }
+    if (bounce_count >= MAX_BOUNCES && debug_physics) {
+        fprintf(stderr,
+                "simulate_frame: MAX_BOUNCES reached, "
+                "puck pos=(%.2f, %.2f) vel=(%.2f, %.2f)\n",
+                puck->pos.x, puck->pos.y,
+                puck->vel.x, puck->vel.y);
     }
 }

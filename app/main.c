@@ -32,8 +32,6 @@ int main(int argc, char *argv[]) {
     // 1. Initialize Game Objects
     GameObject p1 = {{100.0, 240.0}, {0.0, 0.0}, PADDLE_RADIUS}; 
     GameObject p2 = {{540.0, 240.0}, {0.0, 0.0}, PADDLE_RADIUS};
-    GameObject left_top_post = {{0.0, 170.0}, {0.0, 0.0}, 10.0};
-    GameObject left_bot_post = {{0.0, 310.0}, {0.0, 0.0}, 10.0};
     GameObject puck = {{320.0, 240.0}, {0.0, 0.0}, PUCK_RADIUS}; 
 
     int p1_score = 0;
@@ -103,7 +101,7 @@ int main(int argc, char *argv[]) {
         // STEP 2: Simulate puck
         // Run physics engine for this frame
         if (game_state == 0) {
-            simulate_frame(&puck, &p1, &p2, &left_top_post, &left_bot_post);
+            simulate_frame(&puck, &p1, &p2);
         }
 
         // STEP 3: Detect goal / update game_state / score
