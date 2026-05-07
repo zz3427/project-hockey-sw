@@ -120,10 +120,10 @@ void simulate_frame(GameObject *puck,
 
 
         // get goal post time
-        GameObject left_top_post = {{LEFT_GOAL_SCORE_X, GOAL_TOP}, {0.0, 0.0}, 0.1};
-        GameObject left_bottom_post = {{LEFT_GOAL_SCORE_X, GOAL_BOTTOM}, {0.0, 0.0}, 0.1};
-        GameObject right_top_post = {{RIGHT_GOAL_SCORE_X, GOAL_TOP}, {0.0, 0.0}, 0.1};
-        GameObject right_bottom_post = {{RIGHT_GOAL_SCORE_X, GOAL_BOTTOM}, {0.0, 0.0}, 0.1};
+        GameObject left_top_post = {{PLAY_LEFT, GOAL_TOP}, {0.0, 0.0}, 0.1};
+        GameObject left_bottom_post = {{PLAY_LEFT, GOAL_BOTTOM}, {0.0, 0.0}, 0.1};
+        GameObject right_top_post = {{PLAY_RIGHT, GOAL_TOP}, {0.0, 0.0}, 0.1};
+        GameObject right_bottom_post = {{PLAY_RIGHT, GOAL_BOTTOM}, {0.0, 0.0}, 0.1};
 
         double t_post1, t_post2;
 
