@@ -29,14 +29,15 @@ static void print_time(const char *name, double t)
     }
 }
 
-static int puck_y_is_inside_goal_opening(double y)
+static int puck_fully_inside_goal_opening(const GameObject *puck, double y)
 {
-    return y >= GOAL_TOP && y <= GOAL_BOTTOM;
+    return (y - puck->radius >= GOAL_TOP) &&
+           (y + puck->radius <= GOAL_BOTTOM);
 }
 
 static void clamp_puck_to_arena(GameObject *puck)
 {
-    int in_goal_y = puck_y_is_inside_goal_opening(puck->pos.y);
+    int in_goal_y = puck_fully_inside_goal_opening(puck, puck->pos.y);
 
     /*
      * If puck is inside the goal opening and moving outward,
@@ -107,7 +108,7 @@ static double get_segmented_wall_collision_time(const GameObject *puck)
         if (t >= 0.0) {
             double hit_y = puck->pos.y + puck->vel.y * t;
 
-            if (!puck_y_is_inside_goal_opening(hit_y)) {
+            if (!puck_fully_inside_goal_opening(puck, hit_y)) {
                 if (t < t_min) t_min = t;
             } else {
                 if (debug_physics) {
