@@ -137,14 +137,6 @@ void simulate_frame(GameObject *puck,
             t_post2 = getPaddleCollisionTime(puck, &right_bottom_post);
         }
 
-        if (debug_physics) {
-            printf("[simulate_frame] times: ");
-            print_time("t_wall", t_wall);
-            print_time("t_p1", t_p1);
-            print_time("t_p2", t_p2);
-            printf("\n");
-        }
-
         double t_c = min_time(min_time(t_wall, min_time(t_p1, t_p2)), min_time(t_post1, t_post2));
 
         CollisionType collision_type = COLLISION_NONE;
@@ -167,6 +159,8 @@ void simulate_frame(GameObject *puck,
             } else {
                 collision_type = COLLISION_RIGHT_BOTTOM_POST;
             }
+        } else {
+            collision_type = COLLISION_NONE;
         }
 
         if (t_c < MIN_COLLISION_TIME) {

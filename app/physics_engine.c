@@ -28,11 +28,21 @@ double get_wall_collision_time(const GameObject *puck) {
 
     // Check Left Wall (X = 10)
     if (puck->vel.x < 0) {
+        // check if within goal area, if so, no collision with wall
+        if (puck->pos.y >= GOAL_TOP && puck->pos.y <= GOAL_BOTTOM) {
+            // puck is within goal area, treat as no collision with wall
+            t_min = DBL_MAX;
+        }
         t = (PLAY_LEFT + puck->radius - puck->pos.x) / puck->vel.x;
         if (t >= 0 && t < t_min) t_min = t;
     }
     // Check Right Wall (X = 630)
     else if (puck->vel.x > 0) {
+        // check if within goal area, if so, no collision with wall
+        if (puck->pos.y >= GOAL_TOP && puck->pos.y <= GOAL_BOTTOM) {
+            // puck is within goal area, treat as no collision with wall
+            t_min = DBL_MAX;
+        }
         t = (PLAY_RIGHT - puck->radius - puck->pos.x) / puck->vel.x;
         if (t >= 0 && t < t_min) t_min = t;
     }
