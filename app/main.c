@@ -34,6 +34,20 @@ int main(int argc, char *argv[]) {
     GameObject p2 = {{540.0, 240.0}, {0.0, 0.0}, PADDLE_RADIUS};
     GameObject puck = {{320.0, 240.0}, {0.0, 0.0}, PUCK_RADIUS}; 
 
+    // if command line argument puck is provided, set initial puck velocity for testing
+    // command line argument format: --puck-pos-x=100 --puck-pos-y=100 --puck-vel-x=50 --puck-vel-y=50
+    for (int i = 1; i < argc; i++) {
+        if (strncmp(argv[i], "--puck-pos-x=", 12) == 0) {
+            puck.pos.x = atof(argv[i] + 12);
+        } else if (strncmp(argv[i], "--puck-pos-y=", 12) == 0) {
+            puck.pos.y = atof(argv[i] + 12);
+        } else if (strncmp(argv[i], "--puck-vel-x=", 12) == 0) {
+            puck.vel.x = atof(argv[i] + 12);
+        } else if (strncmp(argv[i], "--puck-vel-y=", 12) == 0) {
+            puck.vel.y = atof(argv[i] + 12);
+        }
+    }
+
     int p1_score = 0;
     int p2_score = 0;
     int game_state = 0; // 0 = playing, 1 = goal scored/waiting for serve
