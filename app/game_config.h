@@ -16,10 +16,10 @@
 // Verilog uses:
 // px >= WL + WW && px <= WR - WW
 // py >= WT + WW && py <= WB - WW
-#define PLAY_LEFT       (WALL_LEFT + WALL_WIDTH)      // 14
-#define PLAY_RIGHT      (WALL_RIGHT - WALL_WIDTH)     // 625
-#define PLAY_TOP        (WALL_TOP + WALL_WIDTH)       // 14
-#define PLAY_BOTTOM     (WALL_BOTTOM - WALL_WIDTH)    // 465
+#define PLAY_LEFT       (WALL_LEFT + WALL_WIDTH)      
+#define PLAY_RIGHT      (WALL_RIGHT - WALL_WIDTH)     
+#define PLAY_TOP        (WALL_TOP + WALL_WIDTH)       
+#define PLAY_BOTTOM     (WALL_BOTTOM - WALL_WIDTH)    
 
 // Goal opening from hardware Verilog
 #define GOAL_TOP        190.0
@@ -44,21 +44,21 @@
 
 // Paddle movement bounds
 // These keep the whole paddle inside the visible ice, not inside the border.
-#define P1_X_MIN        (PLAY_LEFT + PADDLE_RADIUS)      // 44
-#define P1_X_MAX        (320.0 - PADDLE_RADIUS)          // 290
+#define P1_X_MIN        (PLAY_LEFT + PADDLE_RADIUS)      
+#define P1_X_MAX        (320.0 - PADDLE_RADIUS)          
 
-#define P2_X_MIN        (320.0 + PADDLE_RADIUS)          // 350
-#define P2_X_MAX        (PLAY_RIGHT - PADDLE_RADIUS)     // 595
+#define P2_X_MIN        (320.0 + PADDLE_RADIUS)          
+#define P2_X_MAX        (PLAY_RIGHT - PADDLE_RADIUS)     
 
-#define PADDLE_Y_MIN    (PLAY_TOP + PADDLE_RADIUS)       // 44
-#define PADDLE_Y_MAX    (PLAY_BOTTOM - PADDLE_RADIUS)    // 435
+#define PADDLE_Y_MIN    (PLAY_TOP + PADDLE_RADIUS)       
+#define PADDLE_Y_MAX    (PLAY_BOTTOM - PADDLE_RADIUS)    
 
 // Puck movement bounds
 // These keep the whole puck inside the visible ice.
-#define PUCK_X_MIN      (PLAY_LEFT + PUCK_RADIUS)        // 34
-#define PUCK_X_MAX      (PLAY_RIGHT - PUCK_RADIUS)       // 605
-#define PUCK_Y_MIN      (PLAY_TOP + PUCK_RADIUS)         // 34
-#define PUCK_Y_MAX      (PLAY_BOTTOM - PUCK_RADIUS)      // 445
+#define PUCK_X_MIN      (PLAY_LEFT + PUCK_RADIUS)        
+#define PUCK_X_MAX      (PLAY_RIGHT - PUCK_RADIUS)       
+#define PUCK_Y_MIN      (PLAY_TOP + PUCK_RADIUS)         
+#define PUCK_Y_MAX      (PLAY_BOTTOM - PUCK_RADIUS)      
 
 // Gameplay tuning
 #define MOUSE_SENSITIVITY 0.5
