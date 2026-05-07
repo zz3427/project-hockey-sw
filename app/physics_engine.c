@@ -1,4 +1,5 @@
 #include "physics_engine.h"
+#include "game_config.h"
 #include <float.h> // For DBL_MAX (infinity)
 
 // ---------------------------------------------------------
@@ -9,41 +10,41 @@ double getWallCollisionTime(const GameObject *puck) {
     double t;
 
     // Already outside left and still moving left
-    if (puck->pos.x < 10.0 + puck->radius && puck->vel.x < 0) {
+    if (puck->pos.x < PLAY_LEFT + puck->radius && puck->vel.x < 0) {
         return 0.0;
     }
     // Already outside right and still moving right
-    if (puck->pos.x > 630.0 - puck->radius && puck->vel.x > 0) {
+    if (puck->pos.x > PLAY_RIGHT - puck->radius && puck->vel.x > 0) {
         return 0.0;
     }
     // Already outside top and still moving up
-    if (puck->pos.y < 10.0 + puck->radius && puck->vel.y < 0) {
+    if (puck->pos.y < PLAY_TOP + puck->radius && puck->vel.y < 0) {
         return 0.0;
     }
     // Already outside bottom and still moving down
-    if (puck->pos.y > 470.0 - puck->radius && puck->vel.y > 0) {
+    if (puck->pos.y > PLAY_BOTTOM - puck->radius && puck->vel.y > 0) {
         return 0.0;
     }
 
     // Check Left Wall (X = 10)
     if (puck->vel.x < 0) {
-        t = (10.0 + puck->radius - puck->pos.x) / puck->vel.x;
+        t = (PLAY_LEFT + puck->radius - puck->pos.x) / puck->vel.x;
         if (t >= 0 && t < t_min) t_min = t;
     }
     // Check Right Wall (X = 630)
     else if (puck->vel.x > 0) {
-        t = (630.0 - puck->radius - puck->pos.x) / puck->vel.x;
+        t = (PLAY_RIGHT - puck->radius - puck->pos.x) / puck->vel.x;
         if (t >= 0 && t < t_min) t_min = t;
     }
 
     // Check Top Wall (Y = 10)
     if (puck->vel.y < 0) {
-        t = (10.0 + puck->radius - puck->pos.y) / puck->vel.y;
+        t = (PLAY_TOP + puck->radius - puck->pos.y) / puck->vel.y;
         if (t >= 0 && t < t_min) t_min = t;
     }
     // Check Bottom Wall (Y = 470)
     else if (puck->vel.y > 0) {
-        t = (470.0 - puck->radius - puck->pos.y) / puck->vel.y;
+        t = (PLAY_BOTTOM - puck->radius - puck->pos.y) / puck->vel.y;
         if (t >= 0 && t < t_min) t_min = t;
     }
 
@@ -148,10 +149,10 @@ void applyPaddleCollision(GameObject *puck, const GameObject *paddle, double res
 void applyWallBounce(GameObject *puck, double restitution) {
     const double EPS = 0.001;
 
-    double left_bound   = 10.0 + puck->radius;
-    double right_bound  = 630.0 - puck->radius;
-    double top_bound    = 10.0 + puck->radius;
-    double bottom_bound = 470.0 - puck->radius;
+    double left_bound   = PLAY_RIGHT + puck->radius;
+    double right_bound  = PLAY_LEFT - puck->radius;
+    double top_bound    = PLAY_BOTTOM + puck->radius;
+    double bottom_bound = PLAY_TOP - puck->radius;
 
     // Left wall
     if (puck->pos.x <= left_bound + EPS && puck->vel.x < 0) {
