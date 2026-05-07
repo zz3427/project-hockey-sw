@@ -9,42 +9,27 @@ double get_wall_collision_time(const GameObject *puck) {
     double t_min = DBL_MAX;
     double t;
 
-    // // Already outside left and still moving left
-    // if (puck->pos.x < PLAY_LEFT + puck->radius && puck->vel.x < 0) {
-    //     return 0.0;
-    // }
-    // // Already outside right and still moving right
-    // if (puck->pos.x > PLAY_RIGHT - puck->radius && puck->vel.x > 0) {
-    //     return 0.0;
-    // }
-    // // Already outside top and still moving up
-    // if (puck->pos.y < PLAY_TOP + puck->radius && puck->vel.y < 0) {
-    //     return 0.0;
-    // }
-    // // Already outside bottom and still moving down
-    // if (puck->pos.y > PLAY_BOTTOM - puck->radius && puck->vel.y > 0) {
-    //     return 0.0;
-    // }
-
     // Check Left Wall (X = 10)
     if (puck->vel.x < 0) {
-        // check if within goal area, if so, no collision with wall
-        if (puck->pos.y >= GOAL_TOP && puck->pos.y <= GOAL_BOTTOM) {
-            // puck is within goal area, treat as no collision with wall
-            t_min = DBL_MAX;
-        }
         t = (PLAY_LEFT + puck->radius - puck->pos.x) / puck->vel.x;
-        if (t >= 0 && t < t_min) t_min = t;
+        if(t>=0){
+            double hit_y = puck->pos.y + puck->vel.y * t;
+            if(!(hit_y >= GOAL_TOP && hit_y <= GOAL_BOTTOM)){
+                // If collision with left wall is outside goal area, consider it a valid wall collision
+                if (t < t_min) t_min = t;
+            }
+        }
     }
     // Check Right Wall (X = 630)
     else if (puck->vel.x > 0) {
-        // check if within goal area, if so, no collision with wall
-        if (puck->pos.y >= GOAL_TOP && puck->pos.y <= GOAL_BOTTOM) {
-            // puck is within goal area, treat as no collision with wall
-            t_min = DBL_MAX;
-        }
         t = (PLAY_RIGHT - puck->radius - puck->pos.x) / puck->vel.x;
-        if (t >= 0 && t < t_min) t_min = t;
+        if(t>=0){
+            double hit_y = puck->pos.y + puck->vel.y * t;
+            if(!(hit_y >= GOAL_TOP && hit_y <= GOAL_BOTTOM)){
+                // If collision with right wall is outside goal area, consider it a valid wall collision
+                if (t < t_min) t_min = t;
+            }
+        }
     }
 
     // Check Top Wall (Y = 10)
