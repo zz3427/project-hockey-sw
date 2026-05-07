@@ -5,7 +5,7 @@
 // ---------------------------------------------------------
 // Section 3.2: Wall Collision Time
 // ---------------------------------------------------------
-double getWallCollisionTime(const GameObject *puck) {
+double get_wall_collision_time(const GameObject *puck) {
     double t_min = DBL_MAX;
     double t;
 
