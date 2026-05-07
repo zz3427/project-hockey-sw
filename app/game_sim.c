@@ -42,19 +42,6 @@ static int puck_center_inside_goal_opening(double y)
     return y >= GOAL_TOP && y <= GOAL_BOTTOM;
 }
 
-/*
- * Entire puck fits inside the goal opening.
- * This is useful for avoiding visual clipping, but we should NOT use this
- * to decide whether a vertical wall exists. The vertical wall opening is
- * based on the puck center crossing the opening; the horizontal goal lips
- * handle the top/bottom edge cases.
- */
-static int puck_fully_inside_goal_opening(const GameObject *puck, double y)
-{
-    return (y - puck->radius >= GOAL_TOP) &&
-           (y + puck->radius <= GOAL_BOTTOM);
-}
-
 static void clamp_puck_to_arena(GameObject *puck)
 {
     int in_goal_y = puck_center_inside_goal_opening(puck->pos.y);
@@ -111,7 +98,7 @@ void simulate_frame(GameObject *puck,
     while (t_remaining > MIN_FRAME_TIME_REMAINING &&
            bounce_count < MAX_BOUNCES) {
 
-        clamp_puck_to_arena(puck);
+        // clamp_puck_to_arena(puck);
         
         double t_wall = get_wall_collision_time(puck);
 
