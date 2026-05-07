@@ -64,7 +64,8 @@ int handle_score_update(GameObject *puck,
             (*p1_score)++;
         }
 
-        fprintf(stderr, "[GOAL] P1 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);    
+        fprintf(stderr, "[GOAL] P1 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
+        sleep(2); // brief pause after goal before resetting positions    
         reset_after_goal(puck, p1, p2);
     } else if (goal == GOAL_P2_SCORED) {
         if (*p2_score < MAX_SCORE) {
@@ -72,8 +73,9 @@ int handle_score_update(GameObject *puck,
         }
         
         fprintf(stderr, "[GOAL] P2 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
+        sleep(2); // brief pause after goal before resetting positions
         reset_after_goal(puck, p1, p2);
     }
-    
+
     return goal != GOAL_NONE;
 }
