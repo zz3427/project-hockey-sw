@@ -9,22 +9,22 @@ double get_wall_collision_time(const GameObject *puck) {
     double t_min = DBL_MAX;
     double t;
 
-    // Already outside left and still moving left
-    if (puck->pos.x < PLAY_LEFT + puck->radius && puck->vel.x < 0) {
-        return 0.0;
-    }
-    // Already outside right and still moving right
-    if (puck->pos.x > PLAY_RIGHT - puck->radius && puck->vel.x > 0) {
-        return 0.0;
-    }
-    // Already outside top and still moving up
-    if (puck->pos.y < PLAY_TOP + puck->radius && puck->vel.y < 0) {
-        return 0.0;
-    }
-    // Already outside bottom and still moving down
-    if (puck->pos.y > PLAY_BOTTOM - puck->radius && puck->vel.y > 0) {
-        return 0.0;
-    }
+    // // Already outside left and still moving left
+    // if (puck->pos.x < PLAY_LEFT + puck->radius && puck->vel.x < 0) {
+    //     return 0.0;
+    // }
+    // // Already outside right and still moving right
+    // if (puck->pos.x > PLAY_RIGHT - puck->radius && puck->vel.x > 0) {
+    //     return 0.0;
+    // }
+    // // Already outside top and still moving up
+    // if (puck->pos.y < PLAY_TOP + puck->radius && puck->vel.y < 0) {
+    //     return 0.0;
+    // }
+    // // Already outside bottom and still moving down
+    // if (puck->pos.y > PLAY_BOTTOM - puck->radius && puck->vel.y > 0) {
+    //     return 0.0;
+    // }
 
     // Check Left Wall (X = 10)
     if (puck->vel.x < 0) {
