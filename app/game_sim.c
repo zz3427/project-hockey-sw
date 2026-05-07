@@ -124,7 +124,7 @@ static double get_segmented_wall_collision_time(const GameObject *puck)
         if (t >= 0.0) {
             double hit_y = puck->pos.y + puck->vel.y * t;
 
-            if (!puck_y_is_inside_goal_opening(hit_y)) {
+            if (!puck_fully_inside_goal_opening(puck, hit_y)) {
                 if (t < t_min) t_min = t;
             } else {
                 if (debug_physics) {
