@@ -73,8 +73,8 @@
 // Goal detection threshold.
 // Score only after puck has visibly entered the goal/off-screen area.
 // Keep this based on outer wall, not PLAY_LEFT/PLAY_RIGHT.
-#define LEFT_GOAL_SCORE_X   (WALL_LEFT - PUCK_RADIUS)    // -10
-#define RIGHT_GOAL_SCORE_X  (WALL_RIGHT + PUCK_RADIUS)   // 649
+#define LEFT_GOAL_SCORE_X   (WALL_LEFT)    // 
+#define RIGHT_GOAL_SCORE_X  (WALL_RIGHT)   // 
 
 // Simulation tuning
 #define MAX_BOUNCES 3
