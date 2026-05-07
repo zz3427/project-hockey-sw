@@ -145,7 +145,7 @@ void simulate_frame(GameObject *puck,
             printf("\n");
         }
 
-        double t_c = min_time((t_wall, min_time(t_p1, t_p2)), min_time(t_post1, t_post2));
+        double t_c = min_time(min_time(t_wall, min_time(t_p1, t_p2)), min_time(t_post1, t_post2));
 
         CollisionType collision_type = COLLISION_NONE;
 
