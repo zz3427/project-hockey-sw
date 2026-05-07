@@ -27,7 +27,7 @@ CFLAGS := -I driver -I app -Wall -Wextra -g
 # Userspace programs
 # ----------------------------------------------------------------------------
 
-TEST_BINS := tests/test_positions tests/test_mouse tests/test_starting_pos
+TEST_BINS := tests/test_positions tests/test_mouse tests/test_starting_pos tests/test_score_display
 APP_BINS := app/main
 
 .PHONY: default all module tests apps clean help
@@ -71,6 +71,10 @@ tests/test_mouse: tests/test_mouse.c app/game_io.c app/game_io.h driver/air_hock
 
 tests/test_starting_pos: tests/test_starting_pos.c app/game_io.c app/game_io.h driver/air_hockey.h
 	$(CC) $(CFLAGS) tests/test_starting_pos.c app/game_io.c -o tests/test_starting_pos
+
+tests/test_score_display: tests/test_score_display.c app/game_io.c app/game_io.h driver/air_hockey.h
+	$(CC) $(CFLAGS) tests/test_score_display.c app/game_io.c -o tests/test_score_display
+
 
 app/main: app/main.c \
           app/game_io.c \
