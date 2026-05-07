@@ -22,13 +22,6 @@ int debug_physics = 0; // Set to 1 to enable detailed physics debug prints
 
 
 int main(int argc, char *argv[]) {
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--debug-physics") == 0) {
-            debug_physics = 1;
-        }
-    }
-
-    if (debug_physics) printf("[main] physics debug enabled\n");
 
     // 1. Initialize Game Objects
     GameObject p1 = {{100.0, 240.0}, {0.0, 0.0}, PADDLE_RADIUS}; 
@@ -38,6 +31,7 @@ int main(int argc, char *argv[]) {
     // if command line argument puck is provided, set initial puck velocity for testing
     // command line argument format: puckx pucky puckvelx puckvely
     if (argc == 5) {
+        debug_physics = 1;
         puck.pos.x = atof(argv[1]);
         puck.pos.y = atof(argv[2]);
         puck.vel.x = atof(argv[3]);
@@ -106,8 +100,8 @@ int main(int argc, char *argv[]) {
 
         // TODO: Read /dev/input/mice evdev accumulators here and apply to p1.pos and p2.pos
         // STEP 1: Read input nonblocking, and update paddle
-        poll_mouse_and_update_paddle(mouse_fd1, &p1, P1_X_MIN, P1_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX);
-        poll_mouse_and_update_paddle(mouse_fd2, &p2, P2_X_MIN, P2_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX);
+        poll_mouse_and_update_paddle(mouse_fd1, &p1, &puck, P1_X_MIN, P1_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX);
+        poll_mouse_and_update_paddle(mouse_fd2, &p2, &puck, P2_X_MIN, P2_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX);
         
         
 
