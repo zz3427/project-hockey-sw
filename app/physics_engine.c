@@ -170,12 +170,20 @@ void applyWallBounce(GameObject *puck, double restitution) {
 
     // Left wall
     if (puck->pos.x <= left_bound + EPS && puck->vel.x < 0) {
+        // If within goal area, do not apply wall bounce
+        if (puck->pos.y >= GOAL_TOP && puck->pos.y <= GOAL_BOTTOM) {
+            return;
+        }
         puck->pos.x = left_bound + EPS;
         puck->vel.x = -puck->vel.x * restitution;
     }
 
     // Right wall
     else if (puck->pos.x >= right_bound - EPS && puck->vel.x > 0) {
+        // If within goal area, do not apply wall bounce
+        if (puck->pos.y >= GOAL_TOP && puck->pos.y <= GOAL_BOTTOM) {
+            return;
+        }
         puck->pos.x = right_bound - EPS;
         puck->vel.x = -puck->vel.x * restitution;
     }
