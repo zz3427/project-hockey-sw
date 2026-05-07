@@ -7,6 +7,7 @@ int open_mouse_device(const char *path);
 
 void poll_mouse_and_update_paddle(int mouse_fd,
                                   GameObject *p,
+                                  const GameObject *puck,
                                   double x_min,
                                   double x_max,
                                   double y_min,
