@@ -54,8 +54,8 @@ static int wall_collision_is_goal_exit(const GameObject *puck, double t_wall)
     double hit_x = puck->pos.x + puck->vel.x * t_wall;
     double hit_y = puck->pos.y + puck->vel.y * t_wall;
 
-    double left_bound = WALL_LEFT + puck->radius;
-    double right_bound = WALL_RIGHT - puck->radius;
+    double left_bound = PLAY_LEFT + puck->radius;
+    double right_bound = PLAY_RIGHT - puck->radius;
 
     if (!puck_y_is_inside_goal_opening(hit_y)) {
         return 0;
@@ -86,23 +86,23 @@ static void clamp_puck_to_arena(GameObject *puck)
      * can happen after it visibly enters the goal.
      */
     int exiting_left_goal =
-        in_goal_y && puck->vel.x < 0.0 && puck->pos.x <= WALL_LEFT + puck->radius;
+        in_goal_y && puck->vel.x < 0.0 && puck->pos.x <= PLAY_LEFT + puck->radius;
 
     int exiting_right_goal =
-        in_goal_y && puck->vel.x > 0.0 && puck->pos.x >= WALL_RIGHT - puck->radius;
+        in_goal_y && puck->vel.x > 0.0 && puck->pos.x >= PLAY_RIGHT - puck->radius;
 
     if (!exiting_left_goal && !exiting_right_goal) {
-        if (puck->pos.x < WALL_LEFT + puck->radius) {
-            puck->pos.x = WALL_LEFT + puck->radius;
-        } else if (puck->pos.x > WALL_RIGHT - puck->radius) {
-            puck->pos.x = WALL_RIGHT - puck->radius;
+        if (puck->pos.x < PLAY_LEFT + puck->radius) {
+            puck->pos.x = PLAY_LEFT + puck->radius;
+        } else if (puck->pos.x > PLAY_RIGHT - puck->radius) {
+            puck->pos.x = PLAY_RIGHT - puck->radius;
         }
     }
 
-    if (puck->pos.y < WALL_TOP + puck->radius) {
-        puck->pos.y = WALL_TOP + puck->radius;
-    } else if (puck->pos.y > WALL_BOTTOM - puck->radius) {
-        puck->pos.y = WALL_BOTTOM - puck->radius;
+    if (puck->pos.y < PLAY_TOP + puck->radius) {
+        puck->pos.y = PLAY_TOP + puck->radius;
+    } else if (puck->pos.y > PLAY_BOTTOM - puck->radius) {
+        puck->pos.y = PLAY_BOTTOM - puck->radius;
     }
 }
 

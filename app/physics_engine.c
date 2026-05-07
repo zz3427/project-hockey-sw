@@ -149,10 +149,14 @@ void applyPaddleCollision(GameObject *puck, const GameObject *paddle, double res
 void applyWallBounce(GameObject *puck, double restitution) {
     const double EPS = 0.001;
 
-    double left_bound   = PLAY_RIGHT + puck->radius;
-    double right_bound  = PLAY_LEFT - puck->radius;
-    double top_bound    = PLAY_BOTTOM + puck->radius;
-    double bottom_bound = PLAY_TOP - puck->radius;
+    double left_bound   = PLAY_LEFT + puck->radius;
+    double right_bound  = PLAY_RIGHT - puck->radius;
+    double top_bound    = PLAY_TOP + puck->radius;
+    double bottom_bound = PLAY_BOTTOM - puck->radius;
+
+    // Optional safety clamp
+    if (restitution < 0.0) restitution = 0.0;
+    if (restitution > 1.0) restitution = 1.0;
 
     // Left wall
     if (puck->pos.x <= left_bound + EPS && puck->vel.x < 0) {
