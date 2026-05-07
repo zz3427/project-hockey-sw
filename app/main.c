@@ -35,14 +35,16 @@ int main(int argc, char *argv[]) {
     GameObject puck = {{320.0, 240.0}, {0.0, 0.0}, PUCK_RADIUS}; 
 
     // if command line argument puck is provided, set initial puck velocity for testing
-    // command line argument format: 100 100 50 50
-    for(int i = 1; i < argc; i++) {
-        puck.pos.x = atof(argv[i + 1]);
-        puck.pos.y = atof(argv[i + 2]);
-        puck.vel.x = atof(argv[i + 3]);
-        puck.vel.y = atof(argv[i + 4]);
-        printf("[main] initial puck velocity set to (%.2f, %.2f)\n", puck.vel.x, puck.vel.y);
+    // command line argument format: puckx pucky puckvelx puckvely
+    if (argc == 5) {
+        puck.pos.x = atof(argv[1]);
+        puck.pos.y = atof(argv[2]);
+        puck.vel.x = atof(argv[3]);
+        puck.vel.y = atof(argv[4]);
+        printf("[main] initial puck state from command line: pos=(%.2f, %.2f) vel=(%.2f, %.2f)\n",
+               puck.pos.x, puck.pos.y, puck.vel.x, puck.vel.y);
     }
+
 
     int p1_score = 0;
     int p2_score = 0;
