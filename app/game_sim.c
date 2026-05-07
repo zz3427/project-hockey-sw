@@ -12,7 +12,11 @@ typedef enum {
     COLLISION_NONE = 0,
     COLLISION_WALL,
     COLLISION_P1,
-    COLLISION_P2
+    COLLISION_P2,
+    COLLISION_LEFT_TOP_POST,    
+    COLLISION_LEFT_BOTTOM_POST, 
+    COLLISION_RIGHT_TOP_POST,   
+    COLLISION_RIGHT_BOTTOM_POST
 } CollisionType;
 
 typedef enum {
@@ -348,6 +352,25 @@ void simulate_frame(GameObject *puck,
         double t_p1 = getPaddleCollisionTime(puck, p1);
         double t_p2 = getPaddleCollisionTime(puck, p2);
 
+
+        // get goal post time
+        GameObject left_top_post = {{LEFT_GOAL_SCORE_X, GOAL_TOP}, {0.0, 0.0}, 0.1};
+        GameObject left_bottom_post = {{LEFT_GOAL_SCORE_X, GOAL_BOTTOM}, {0.0, 0.0}, 0.1};
+        GameObject right_top_post = {{RIGHT_GOAL_SCORE_X, GOAL_TOP}, {0.0, 0.0}, 0.1};
+        GameObject right_bottom_post = {{RIGHT_GOAL_SCORE_X, GOAL_BOTTOM}, {0.0, 0.0}, 0.1};
+
+        double t_post1, t_post2;
+
+        if (puck->pos.x < (PLAY_LEFT + PLAY_RIGHT) / 2) {
+            // near left goal, check collision with left goal posts
+            t_post1 = getPaddleCollisionTime(puck, &left_top_post);
+            t_post2 = getPaddleCollisionTime(puck, &left_bottom_post);
+        } else {
+            // near right goal, check collision with right goal posts 
+            t_post1 = getPaddleCollisionTime(puck, &right_top_post);
+            t_post2 = getPaddleCollisionTime(puck, &right_bottom_post);
+        }
+
         if (debug_physics) {
             printf("[simulate_frame] times: ");
             print_time("t_wall", t_wall);
@@ -356,7 +379,7 @@ void simulate_frame(GameObject *puck,
             printf("\n");
         }
 
-        double t_c = min_time(t_wall, min_time(t_p1, t_p2));
+        double t_c = min_time((t_wall, min_time(t_p1, t_p2)), min_time(t_post1, t_post2));
 
         CollisionType collision_type = COLLISION_NONE;
 
@@ -366,6 +389,18 @@ void simulate_frame(GameObject *puck,
             collision_type = COLLISION_P1;
         } else if (t_c == t_p2) {
             collision_type = COLLISION_P2;
+        } else if (t_c == t_post1) {
+            if (puck->pos.x < (PLAY_LEFT + PLAY_RIGHT) / 2) {
+                collision_type = COLLISION_LEFT_TOP_POST;
+            } else {
+                collision_type = COLLISION_RIGHT_TOP_POST;
+            }
+        } else if (t_c == t_post2) {
+            if (puck->pos.x < (PLAY_LEFT + PLAY_RIGHT) / 2) {
+                collision_type = COLLISION_LEFT_BOTTOM_POST;
+            } else {
+                collision_type = COLLISION_RIGHT_BOTTOM_POST;
+            }
         }
 
         if (t_c < MIN_COLLISION_TIME) {
@@ -394,32 +429,18 @@ void simulate_frame(GameObject *puck,
 
             if (collision_type == COLLISION_P1) {
                 applyPaddleCollision(puck, p1, PADDLE_RESTITUTION);
-
-                if (debug_physics) {
-                    fprintf(stderr,
-                            "[simulate_frame] COLLISION with P1 at t=%.6f\n",
-                            t_c);
-                }
             } else if (collision_type == COLLISION_P2) {
                 applyPaddleCollision(puck, p2, PADDLE_RESTITUTION);
-
-                if (debug_physics) {
-                    fprintf(stderr,
-                            "[simulate_frame] COLLISION with P2 at t=%.6f\n",
-                            t_c);
-                }
             } else if (collision_type == COLLISION_WALL) {
                 apply_wall_hit(puck, wall_hit);
-
-                if (debug_physics) {
-                    const char *wall_type =
-                        (wall_hit.type == WALL_HIT_VERTICAL) ?
-                        "VERTICAL" : "HORIZONTAL";
-
-                    fprintf(stderr,
-                            "[simulate_frame] COLLISION with %s WALL at t=%.6f\n",
-                            wall_type, t_c);
-                }
+            }  else if (collision_type == COLLISION_LEFT_BOTTOM_POST) {
+                applyPaddleCollision(puck, &left_bottom_post, POST_RESTITUTION);
+            } else if (collision_type == COLLISION_LEFT_TOP_POST) {
+                applyPaddleCollision(puck, &left_top_post, POST_RESTITUTION);
+            } else if (collision_type == COLLISION_RIGHT_BOTTOM_POST) {
+                applyPaddleCollision(puck, &right_bottom_post, POST_RESTITUTION);
+            } else if (collision_type == COLLISION_RIGHT_TOP_POST) {
+                applyPaddleCollision(puck, &right_top_post, POST_RESTITUTION);
             }
 
             clamp_object_speed(puck, MAX_PUCK_SPEED);
