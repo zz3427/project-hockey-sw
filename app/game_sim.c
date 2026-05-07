@@ -5,6 +5,7 @@
 #include "game_sim.h"
 #include "physics_engine.h"
 #include "game_config.h"
+#include "../driver/air_hockey.h"
 
 extern int debug_physics;
 
@@ -88,12 +89,13 @@ static void clamp_object_speed(GameObject *obj, double max_speed)
 }
 
 
-void simulate_frame(GameObject *puck,
+unsigned char simulate_frame(GameObject *puck,
                     GameObject *p1,
                     GameObject *p2)
 {
     double t_remaining = 1.0;
     int bounce_count = 0;
+    unsigned char sound_event = AIR_HOCKEY_SOUND_NONE;
 
     while (t_remaining > MIN_FRAME_TIME_REMAINING &&
            bounce_count < MAX_BOUNCES) {
@@ -164,25 +166,32 @@ void simulate_frame(GameObject *puck,
             puck->pos.y += puck->vel.y * t_c;
 
             if (collision_type == COLLISION_P1) {
-                fprintf(stderr, "[collision] puck hit P1 paddle at t=%.6f\n", t_c);
+                debug_physics ? (stderr, "[collision] puck hit P1 paddle at t=%.6f\n", t_c) : (void)0;
+                sound_event = AIR_HOCKEY_SOUND_HIT_PADDLE;
                 applyPaddleCollision(puck, p1, PADDLE_RESTITUTION);
             } else if (collision_type == COLLISION_P2) {
-                fprintf(stderr, "[collision] puck hit P2 paddle at t=%.6f\n", t_c);
+                debug_physics ? (stderr, "[collision] puck hit P2 paddle at t=%.6f\n", t_c) : (void)0;
+                sound_event = AIR_HOCKEY_SOUND_HIT_PADDLE;
                 applyPaddleCollision(puck, p2, PADDLE_RESTITUTION);
             } else if (collision_type == COLLISION_WALL) {
-                fprintf(stderr, "[collision] puck hit wall at t=%.6f\n", t_c);
+                debug_physics ? (stderr, "[collision] puck hit wall at t=%.6f\n", t_c) : (void)0;
+                sound_event = AIR_HOCKEY_SOUND_HIT_WALL;
                 applyWallBounce(puck, WALL_RESTITUTION);
             }  else if (collision_type == COLLISION_LEFT_BOTTOM_POST) {
-                fprintf(stderr, "[collision] puck hit left bottom post at t=%.6f\n", t_c);
+                debug_physics ? (stderr, "[collision] puck hit left bottom post at t=%.6f\n", t_c) : (void)0;
+                sound_event = AIR_HOCKEY_SOUND_HIT_WALL;
                 applyPaddleCollision(puck, &left_bottom_post, POST_RESTITUTION);
             } else if (collision_type == COLLISION_LEFT_TOP_POST) {
-                fprintf(stderr, "[collision] puck hit left top post at t=%.6f\n", t_c);
+                debug_physics ? (stderr, "[collision] puck hit left top post at t=%.6f\n", t_c) : (void)0;
+                sound_event = AIR_HOCKEY_SOUND_HIT_WALL;
                 applyPaddleCollision(puck, &left_top_post, POST_RESTITUTION);
             } else if (collision_type == COLLISION_RIGHT_BOTTOM_POST) {
-                fprintf(stderr, "[collision] puck hit right bottom post at t=%.6f\n", t_c);
+                debug_physics ? (stderr, "[collision] puck hit right bottom post at t=%.6f\n", t_c) : (void)0;
+                sound_event = AIR_HOCKEY_SOUND_HIT_WALL;
                 applyPaddleCollision(puck, &right_bottom_post, POST_RESTITUTION);
             } else if (collision_type == COLLISION_RIGHT_TOP_POST) {
-                fprintf(stderr, "[collision] puck hit right top post at t=%.6f\n", t_c);
+                debug_physics ? (stderr, "[collision] puck hit right top post at t=%.6f\n", t_c) : (void)0;
+                sound_event = AIR_HOCKEY_SOUND_HIT_WALL;
                 applyPaddleCollision(puck, &right_top_post, POST_RESTITUTION);
             }
 
@@ -200,4 +209,5 @@ void simulate_frame(GameObject *puck,
                 puck->pos.x, puck->pos.y,
                 puck->vel.x, puck->vel.y);
     }
+    return sound_event;
 }
