@@ -15,7 +15,7 @@ void reset_after_goal(GameObject *puck,
                       GameObject *p1,
                       GameObject *p2);
 
-void handle_score_update(GameObject *puck,
+int handle_score_update(GameObject *puck,
                          GameObject *p1,
                          GameObject *p2,
                          int *p1_score,

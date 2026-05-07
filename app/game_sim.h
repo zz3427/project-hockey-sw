@@ -3,7 +3,7 @@
 
 #include "physics_engine.h"
 
-void simulate_frame(GameObject *puck,
+unsigned char simulate_frame(GameObject *puck,
                     GameObject *p1,
                     GameObject *p2);
 

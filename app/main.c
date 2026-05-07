@@ -70,30 +70,10 @@ int main(int argc, char *argv[]) {
         game_io_close();
         return 1;
     }
+    unsigned char sound_event = AIR_HOCKEY_SOUND_NONE;
 
     // 2. Main Hardware Game Loop
-    while (1) {
-        /*
-        static int frame_count = 0;
-        static struct timespec last_time = {0, 0};
-
-        struct timespec now;
-        clock_gettime(CLOCK_MONOTONIC, &now);
-        if(last_time.tv_sec == 0){
-            last_time = now;
-        }
-        frame_count++;
-
-        double elapsed =
-            (now.tv_sec - last_time.tv_sec) +
-            (now.tv_nsec - last_time.tv_nsec) / 1000000000.0;
-
-        if (elapsed >= 1.0) {
-            fprintf(stderr, "[main] FPS = %d\n", frame_count);
-            frame_count = 0;
-            last_time = now;
-        }
-        */
+    while (game_state != 2) {
 
         // Wait for VGA to finish drawing the current frame (60 Hz sync)
         game_io_wait_for_vsync();
@@ -108,18 +88,30 @@ int main(int argc, char *argv[]) {
         // STEP 2: Simulate puck
         // Run physics engine for this frame
         if (game_state == 0) {
-            simulate_frame(&puck, &p1, &p2);
+            sound_event = simulate_frame(&puck, &p1, &p2);
         }
 
         // STEP 3: Detect goal / update game_state / score
         // If goal: update scores, reset puck to center, game_state = 1
-        handle_score_update(&puck, &p1, &p2, &p1_score, &p2_score);
+        if (handle_score_update(&puck, &p1, &p2, &p1_score, &p2_score)) {
+            sound_event = AIR_HOCKEY_SOUND_GOAL;
+            game_state = 1;
+        }
         // STEP 4: Decide sound event for this frame
 
         // STEP 5: Push all state to hardware
         // Send updated coordinates to the Verilog VGA driver
-        write_to_vga_registers(&puck, &p1, &p2, p1_score, p2_score, AIR_HOCKEY_SOUND_NONE);
+        write_to_vga_registers(&puck, &p1, &p2, p1_score, p2_score, sound_event);
         
+        if (game_state == 1) {
+            // After a goal, pause for a moment before resuming play
+            sleep(2);
+            game_state = 0;
+            if (p1_score >= MAX_SCORE || p2_score >= MAX_SCORE) {
+                printf("Game over! Final score: P1=%d, P2=%d\n", p1_score, p2_score);
+                game_state = 2; // end game loop
+            }
+        }
     }
 
     close(mouse_fd1);

@@ -51,11 +51,11 @@ void reset_after_goal(GameObject *puck,
     p2->radius = PADDLE_RADIUS;
 }
 
-void handle_score_update(GameObject *puck,
-                         GameObject *p1,
-                         GameObject *p2,
-                         int *p1_score,
-                         int *p2_score)
+int handle_score_update(GameObject *puck,
+                        GameObject *p1,
+                        GameObject *p2,
+                        int *p1_score,
+                        int *p2_score)
 {
     GoalResult goal = check_goal(puck);
 
@@ -74,4 +74,6 @@ void handle_score_update(GameObject *puck,
         fprintf(stderr, "[GOAL] P2 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
         reset_after_goal(puck, p1, p2);
     }
+    
+    return goal != GOAL_NONE;
 }
