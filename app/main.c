@@ -104,8 +104,6 @@ int main(int argc, char *argv[]) {
         write_to_vga_registers(&puck, &p1, &p2, p1_score, p2_score, sound_event);
         
         if (game_state == 1) {
-            // After a goal, pause for a moment before resuming play
-            sleep(2);
             game_state = 0;
             if (p1_score >= MAX_SCORE || p2_score >= MAX_SCORE) {
                 printf("Game over! Final score: P1=%d, P2=%d\n", p1_score, p2_score);
