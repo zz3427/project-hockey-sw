@@ -61,11 +61,11 @@
 #define PUCK_Y_MAX      (PLAY_BOTTOM - PUCK_RADIUS)      // 445
 
 // Gameplay tuning
-#define MOUSE_SENSITIVITY 1.0
-#define MAX_PADDLE_SPEED  40.0
-#define MAX_PUCK_SPEED    80.0
+#define MOUSE_SENSITIVITY 0.5
+#define MAX_PADDLE_SPEED  20.0
+#define MAX_PUCK_SPEED    40.0
 
-#define RESTITUTION       0.7
+#define RESTITUTION       0.6
 #define WALL_RESTITUTION  0.85
 #define PADDLE_RESTITUTION 0.7
 #define POST_RESTITUTION  0.7
