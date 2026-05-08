@@ -106,8 +106,10 @@ int main(int argc, char *argv[]) {
 
         // STEP 6: Reset after a goal has been scored
         if (score_updater == 1) {
+            usleep(250000);
             reset_after_goal(&puck, &p1, &p2, PUCK_START_X_P1);
         } else if (score_updater == 2) {
+            usleep(250000);
             reset_after_goal(&puck, &p1, &p2, PUCK_START_X_P2);
         }
 
