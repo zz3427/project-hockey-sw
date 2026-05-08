@@ -17,11 +17,11 @@ GoalResult check_goal(const GameObject *puck)
      * Do NOT score when puck merely touches the inner wall boundary.
      * Score only after the puck has traveled into/behind the goal.
      */
-    if (puck->pos.x + PUCK_RADIUS <= LEFT_GOAL_SCORE_X) {
+    if (puck->pos.x <= LEFT_GOAL_SCORE_X) {
         return GOAL_P2_SCORED;
     }
 
-    if (puck->pos.x - PUCK_RADIUS >= RIGHT_GOAL_SCORE_X) {
+    if (puck->pos.x >= RIGHT_GOAL_SCORE_X) {
         return GOAL_P1_SCORED;
     }
 
@@ -66,7 +66,7 @@ int handle_score_update(GameObject *puck,
         }
 
         fprintf(stderr, "[GOAL] P1 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
-        sleep(1); // brief pause after goal before resetting positions    
+        sleep(0.5); // brief pause after goal before resetting positions    
         reset_after_goal(puck, p1, p2, PUCK_START_X_P1);
     } else if (goal == GOAL_P2_SCORED) {
         if (*p2_score < MAX_SCORE) {
@@ -74,7 +74,7 @@ int handle_score_update(GameObject *puck,
         }
         
         fprintf(stderr, "[GOAL] P2 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
-        sleep(1); // brief pause after goal before resetting positions
+        sleep(0.5); // brief pause after goal before resetting positions
         reset_after_goal(puck, p1, p2, PUCK_START_X_P2);
     }
 
