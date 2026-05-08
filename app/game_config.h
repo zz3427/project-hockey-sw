@@ -42,8 +42,8 @@
 #define PUCK_START_X    320.0
 #define PUCK_START_Y    240.0
 
-#define PUCK_START_X_P1 220
-#define PUCK_START_X_P2 420
+#define PUCK_START_X_P1 440.0
+#define PUCK_START_X_P2 200.0
 
 // Paddle movement bounds
 // These keep the whole paddle inside the visible ice, not inside the border.
