@@ -30,9 +30,10 @@ GoalResult check_goal(const GameObject *puck)
 
 void reset_after_goal(GameObject *puck,
                       GameObject *p1,
-                      GameObject *p2)
+                      GameObject *p2,
+                      double x_puck_start)
 {
-    puck->pos.x = PUCK_START_X;
+    puck->pos.x = x_puck_start;
     puck->pos.y = PUCK_START_Y;
     puck->vel.x = 0.0;
     puck->vel.y = 0.0;
@@ -66,7 +67,7 @@ int handle_score_update(GameObject *puck,
 
         fprintf(stderr, "[GOAL] P1 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
         sleep(1); // brief pause after goal before resetting positions    
-        reset_after_goal(puck, p1, p2);
+        reset_after_goal(puck, p1, p2, PUCK_START_X_P1);
     } else if (goal == GOAL_P2_SCORED) {
         if (*p2_score < MAX_SCORE) {
             (*p2_score)++;
@@ -74,7 +75,7 @@ int handle_score_update(GameObject *puck,
         
         fprintf(stderr, "[GOAL] P2 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
         sleep(1); // brief pause after goal before resetting positions
-        reset_after_goal(puck, p1, p2);
+        reset_after_goal(puck, p1, p2, PUCK_START_X_P2);
     }
 
     return goal != GOAL_NONE;

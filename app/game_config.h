@@ -6,7 +6,7 @@
 #define SCREEN_HEIGHT   480.0
 
 // Outer rink wall geometry from hardware Verilog
-#define WALL_LEFT       11.0
+#define WALL_LEFT       10.0
 #define WALL_RIGHT      629.0
 #define WALL_TOP        10.0
 #define WALL_BOTTOM     469.0
@@ -42,6 +42,9 @@
 #define PUCK_START_X    320.0
 #define PUCK_START_Y    240.0
 
+#define PUCK_START_X_P1 220
+#define PUCK_START_X_P2 420
+
 // Paddle movement bounds
 // These keep the whole paddle inside the visible ice, not inside the border.
 #define P1_X_MIN        (PLAY_LEFT + PADDLE_RADIUS)      
@@ -73,8 +76,8 @@
 // Goal detection threshold.
 // Score only after puck has visibly entered the goal/off-screen area.
 // Keep this based on outer wall, not PLAY_LEFT/PLAY_RIGHT.
-#define LEFT_GOAL_SCORE_X   (WALL_LEFT - PUCK_RADIUS * 3)    // 
-#define RIGHT_GOAL_SCORE_X  (WALL_RIGHT + PUCK_RADIUS * 3)   // 
+#define LEFT_GOAL_SCORE_X   (WALL_LEFT)    // 
+#define RIGHT_GOAL_SCORE_X  (WALL_RIGHT)   // 
 
 // Simulation tuning
 #define MAX_BOUNCES 3
