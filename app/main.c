@@ -93,7 +93,8 @@ int main(int argc, char *argv[]) {
 
         // STEP 3: Detect goal / update game_state / score
         // If goal: update scores, reset puck to center, game_state = 1
-        if (handle_score_update(&puck, &p1, &p2, &p1_score, &p2_score)) {
+        int score_updater = handle_score_update(&puck, &p1, &p2, &p1_score, &p2_score);
+        if (score_updater) {
             sound_event = AIR_HOCKEY_SOUND_GOAL;
             game_state = 1;
         }
@@ -102,7 +103,13 @@ int main(int argc, char *argv[]) {
         // STEP 5: Push all state to hardware
         // Send updated coordinates to the Verilog VGA driver
         write_to_vga_registers(&puck, &p1, &p2, p1_score, p2_score, sound_event);
-        
+
+        if (score_updater == 1) {
+            reset_after_goal(&puck, &p1, &p2, PUCK_START_X_P1);
+        } else if (score_updater == 2) {
+            reset_after_goal(&puck, &p1, &p2, PUCK_START_X_P2);
+        }
+
         if (game_state == 1) {
             game_state = 0;
             if (p1_score >= MAX_SCORE || p2_score >= MAX_SCORE) {

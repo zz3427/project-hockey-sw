@@ -52,6 +52,7 @@ void reset_after_goal(GameObject *puck,
     p2->radius = PADDLE_RADIUS;
 }
 
+// Returns 1 if P1 scored, returns 2 if P2 scored. 0 of no score
 int handle_score_update(GameObject *puck,
                         GameObject *p1,
                         GameObject *p2,
@@ -67,7 +68,8 @@ int handle_score_update(GameObject *puck,
 
         fprintf(stderr, "[GOAL] P1 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
         sleep(1); // brief pause after goal before resetting positions    
-        reset_after_goal(puck, p1, p2, PUCK_START_X_P1);
+        return 1;
+        //reset_after_goal(puck, p1, p2, PUCK_START_X_P1);
     } else if (goal == GOAL_P2_SCORED) {
         if (*p2_score < MAX_SCORE) {
             (*p2_score)++;
@@ -75,7 +77,8 @@ int handle_score_update(GameObject *puck,
         
         fprintf(stderr, "[GOAL] P2 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
         sleep(1); // brief pause after goal before resetting positions
-        reset_after_goal(puck, p1, p2, PUCK_START_X_P2);
+        return 2;
+        //reset_after_goal(puck, p1, p2, PUCK_START_X_P2);
     }
 
     return goal != GOAL_NONE;
