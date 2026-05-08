@@ -17,11 +17,11 @@ GoalResult check_goal(const GameObject *puck)
      * Do NOT score when puck merely touches the inner wall boundary.
      * Score only after the puck has traveled into/behind the goal.
      */
-    if (puck->pos.x <= LEFT_GOAL_SCORE_X) {
+    if (puck->pos.x + PUCK_RADIUS <= LEFT_GOAL_SCORE_X) {
         return GOAL_P2_SCORED;
     }
 
-    if (puck->pos.x >= RIGHT_GOAL_SCORE_X) {
+    if (puck->pos.x - PUCK_RADIUS >= RIGHT_GOAL_SCORE_X) {
         return GOAL_P1_SCORED;
     }
 
