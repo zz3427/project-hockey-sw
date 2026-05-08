@@ -13,7 +13,8 @@ GoalResult check_goal(const GameObject *puck);
 
 void reset_after_goal(GameObject *puck,
                       GameObject *p1,
-                      GameObject *p2);
+                      GameObject *p2,
+                      double x_puck_start);
 
 int handle_score_update(GameObject *puck,
                          GameObject *p1,
