@@ -6,7 +6,7 @@
 #define SCREEN_HEIGHT   480.0
 
 // Outer rink wall geometry from hardware Verilog
-#define WALL_LEFT       10.0
+#define WALL_LEFT       11.0
 #define WALL_RIGHT      629.0
 #define WALL_TOP        10.0
 #define WALL_BOTTOM     469.0
