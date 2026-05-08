@@ -67,7 +67,7 @@ int handle_score_update(GameObject *puck,
         }
 
         fprintf(stderr, "[GOAL] P1 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
-        sleep(1); // brief pause after goal before resetting positions    
+        //sleep(1); // brief pause after goal before resetting positions    
         return 1;
         //reset_after_goal(puck, p1, p2, PUCK_START_X_P1);
     } else if (goal == GOAL_P2_SCORED) {
@@ -76,7 +76,7 @@ int handle_score_update(GameObject *puck,
         }
         
         fprintf(stderr, "[GOAL] P2 SCORED! New score: P1=%d, P2=%d\n", *p1_score, *p2_score);
-        sleep(1); // brief pause after goal before resetting positions
+        //sleep(1); // brief pause after goal before resetting positions
         return 2;
         //reset_after_goal(puck, p1, p2, PUCK_START_X_P2);
     }

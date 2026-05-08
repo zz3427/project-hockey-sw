@@ -104,6 +104,7 @@ int main(int argc, char *argv[]) {
         // Send updated coordinates to the Verilog VGA driver
         write_to_vga_registers(&puck, &p1, &p2, p1_score, p2_score, sound_event);
 
+        // STEP 6: Reset after a goal has been scored
         if (score_updater == 1) {
             reset_after_goal(&puck, &p1, &p2, PUCK_START_X_P1);
         } else if (score_updater == 2) {
