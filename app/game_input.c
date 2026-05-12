@@ -125,7 +125,9 @@ void poll_mouse_and_update_paddle(int mouse_fd,
                                   double x_min,
                                   double x_max,
                                   double y_min,
-                                  double y_max)
+                                  double y_max,
+                                  int x_sign,
+                                  int y_sign)
 {
     struct input_event ev;
     int dx = 0;
@@ -142,8 +144,6 @@ void poll_mouse_and_update_paddle(int mouse_fd,
         }
     }
 
-    // Convert physical mouse movement to game paddle movement.
-    // This handles monitor/table orientation
     int mapped_dx = dx;
     int mapped_dy = dy;
 
@@ -152,8 +152,11 @@ void poll_mouse_and_update_paddle(int mouse_fd,
     mapped_dy = dx;
     #endif
 
-    mapped_dx *= MOUSE_X_SIGN;
-    mapped_dy *= MOUSE_Y_SIGN;
+    mapped_dx *= x_sign;
+    mapped_dy *= y_sign;
+
+    double move_x = mapped_dx * MOUSE_SENSITIVITY;
+    double move_y = mapped_dy * MOUSE_SENSITIVITY;
 
     // convert mouse movement to paddle movement, with sensitivity and max speed limits
     double move_x = mapped_dx * MOUSE_SENSITIVITY;

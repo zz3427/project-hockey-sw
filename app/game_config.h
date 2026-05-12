@@ -6,10 +6,13 @@
 // 1 = monitor laid flat / mouse axes swapped
 #define MOUSE_SWAP_XY 1
 
-// Optional sign flips after swapping.
-// Set to -1 if one direction feels backwards.
-#define MOUSE_X_SIGN 1
-#define MOUSE_Y_SIGN 1
+// Per-player direction signs after optional X/Y swap.
+// Change these between 1 and -1 until each paddle feels correct.
+#define P1_MOUSE_X_SIGN  -1
+#define P1_MOUSE_Y_SIGN  1
+
+#define P2_MOUSE_X_SIGN  1
+#define P2_MOUSE_Y_SIGN  -1
 
 // Screen geometry
 #define SCREEN_WIDTH    640.0

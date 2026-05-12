@@ -13,6 +13,8 @@ void poll_mouse_and_update_paddle(int mouse_fd,
                                   double x_min,
                                   double x_max,
                                   double y_min,
-                                  double y_max);
+                                  double y_max,
+                                  int x_sign,
+                                  int y_sign);
 
 #endif

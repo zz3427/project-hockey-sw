@@ -89,10 +89,8 @@ int main(int argc, char *argv[]) {
 
         // TODO: Read /dev/input/mice evdev accumulators here and apply to p1.pos and p2.pos
         // STEP 1: Read input nonblocking, and update paddle
-        poll_mouse_and_update_paddle(mouse_fd1, &p1, &puck, P1_X_MIN, P1_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX);
-        poll_mouse_and_update_paddle(mouse_fd2, &p2, &puck, P2_X_MIN, P2_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX);
-        
-        
+        poll_mouse_and_update_paddle(mouse_fd1, &p1, &puck, P1_X_MIN, P1_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX, P1_MOUSE_X_SIGN, P1_MOUSE_Y_SIGN);
+        poll_mouse_and_update_paddle(mouse_fd2, &p2, &puck, P2_X_MIN, P2_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX, P2_MOUSE_X_SIGN, P2_MOUSE_Y_SIGN);
 
         // STEP 2: Simulate puck
         // Run physics engine for this frame
