@@ -5,6 +5,8 @@
 
 int open_mouse_device(const char *path);
 
+int open_two_mouse_devices(int *mouse_fd1, int *mouse_fd2);
+
 void poll_mouse_and_update_paddle(int mouse_fd,
                                   GameObject *p,
                                   const GameObject *puck,

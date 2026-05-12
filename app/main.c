@@ -52,24 +52,33 @@ int main(int argc, char *argv[]) {
     }
 
     // open mouse input device for player 1 and player 2
-    const char *dev_mouse1 = "/dev/input/event0";
-    const char *dev_mouse2 = "/dev/input/event1";
+    // const char *dev_mouse1 = "/dev/input/event0";
+    // const char *dev_mouse2 = "/dev/input/event1";
 
+    // int mouse_fd1, mouse_fd2;
+
+    // mouse_fd1 = open(dev_mouse1, O_RDONLY | O_NONBLOCK);
+    // if (mouse_fd1 == -1) {
+    //     perror("open(mouse device 1) failed");
+    //     game_io_close();
+    //     return 1;
+    // }
+
+    // mouse_fd2 = open(dev_mouse2, O_RDONLY | O_NONBLOCK);
+    // if (mouse_fd2 == -1) {
+    //     perror("open(mouse device 2) failed");
+    //     game_io_close();
+    //     return 1;
+    // }
+
+    // Scan /dev/input/by-path for event-mouse devices and open the first two
     int mouse_fd1, mouse_fd2;
-
-    mouse_fd1 = open(dev_mouse1, O_RDONLY | O_NONBLOCK);
-    if (mouse_fd1 == -1) {
-        perror("open(mouse device 1) failed");
+    if (open_two_mouse_devices(&mouse_fd1, &mouse_fd2) != 0) {
+        fprintf(stderr, "Failed to open two mouse devices\n");
         game_io_close();
         return 1;
     }
 
-    mouse_fd2 = open(dev_mouse2, O_RDONLY | O_NONBLOCK);
-    if (mouse_fd2 == -1) {
-        perror("open(mouse device 2) failed");
-        game_io_close();
-        return 1;
-    }
     unsigned char sound_event = AIR_HOCKEY_SOUND_NONE;
 
     // 2. Main Hardware Game Loop

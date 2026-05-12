@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
 #include <linux/input.h>
 
 #include "game_input.h"
@@ -23,6 +26,97 @@ int open_mouse_device(const char *path)
     }
 
     return fd;
+}
+
+#define INPUT_BY_PATH_DIR "/dev/input/by-path"
+#define MAX_MOUSE_DEVICES 8
+
+static int compare_mouse_paths(const void *a, const void *b)
+{
+    const char *pa = *(const char * const *)a;
+    const char *pb = *(const char * const *)b;
+    return strcmp(pa, pb);
+}
+
+int open_two_mouse_devices(int *mouse_fd1, int *mouse_fd2)
+{
+    DIR *dir;
+    struct dirent *entry;
+    char *mouse_paths[MAX_MOUSE_DEVICES];
+    int mouse_count = 0;
+
+    *mouse_fd1 = -1;
+    *mouse_fd2 = -1;
+
+    dir = opendir(INPUT_BY_PATH_DIR);
+    if (dir == NULL) {
+        perror("opendir /dev/input/by-path");
+        return -1;
+    }
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (strstr(entry->d_name, "event-mouse") != NULL) {
+            char full_path[512];
+
+            if (mouse_count >= MAX_MOUSE_DEVICES) {
+                break;
+            }
+
+            snprintf(full_path, sizeof(full_path), "%s/%s",
+                     INPUT_BY_PATH_DIR, entry->d_name);
+
+            mouse_paths[mouse_count] = strdup(full_path);
+            if (mouse_paths[mouse_count] == NULL) {
+                perror("strdup");
+                closedir(dir);
+
+                for (int i = 0; i < mouse_count; i++) {
+                    free(mouse_paths[i]);
+                }
+
+                return -1;
+            }
+
+            mouse_count++;
+        }
+    }
+
+    closedir(dir);
+
+    if (mouse_count < 2) {
+        fprintf(stderr, "Found only %d mouse device(s). Need 2.\n", mouse_count);
+
+        for (int i = 0; i < mouse_count; i++) {
+            fprintf(stderr, "Found mouse: %s\n", mouse_paths[i]);
+            free(mouse_paths[i]);
+        }
+
+        return -1;
+    }
+
+    qsort(mouse_paths, mouse_count, sizeof(char *), compare_mouse_paths);
+
+    fprintf(stderr, "Using mouse 1: %s\n", mouse_paths[0]);
+    fprintf(stderr, "Using mouse 2: %s\n", mouse_paths[1]);
+
+    *mouse_fd1 = open_mouse_device(mouse_paths[0]);
+    *mouse_fd2 = open_mouse_device(mouse_paths[1]);
+
+    for (int i = 0; i < mouse_count; i++) {
+        free(mouse_paths[i]);
+    }
+
+    if (*mouse_fd1 < 0 || *mouse_fd2 < 0) {
+        if (*mouse_fd1 >= 0) close(*mouse_fd1);
+        if (*mouse_fd2 >= 0) close(*mouse_fd2);
+
+        *mouse_fd1 = -1;
+        *mouse_fd2 = -1;
+
+        return -1;
+    }
+
+    return 0;
 }
 
 void poll_mouse_and_update_paddle(int mouse_fd,
