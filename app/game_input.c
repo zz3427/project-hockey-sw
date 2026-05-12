@@ -155,9 +155,6 @@ void poll_mouse_and_update_paddle(int mouse_fd,
     mapped_dx *= x_sign;
     mapped_dy *= y_sign;
 
-    double move_x = mapped_dx * MOUSE_SENSITIVITY;
-    double move_y = mapped_dy * MOUSE_SENSITIVITY;
-
     // convert mouse movement to paddle movement, with sensitivity and max speed limits
     double move_x = mapped_dx * MOUSE_SENSITIVITY;
     double move_y = mapped_dy * MOUSE_SENSITIVITY;
