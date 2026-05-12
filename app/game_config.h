@@ -64,13 +64,13 @@
 #define PUCK_Y_MAX      (PLAY_BOTTOM - PUCK_RADIUS)      
 
 // Gameplay tuning
-#define MOUSE_SENSITIVITY 0.5
+#define MOUSE_SENSITIVITY 0.8
 #define MAX_PADDLE_SPEED  20.0
 #define MAX_PUCK_SPEED    40.0
 
 #define RESTITUTION       0.6
-#define WALL_RESTITUTION  0.85
-#define PADDLE_RESTITUTION 0.7
+#define WALL_RESTITUTION  0.7
+#define PADDLE_RESTITUTION 0.3
 #define POST_RESTITUTION  0.7
 
 // Goal detection threshold.
