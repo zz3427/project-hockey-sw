@@ -2,14 +2,11 @@
 #include "game_config.h"
 #include <float.h> // For DBL_MAX (infinity)
 
-// ---------------------------------------------------------
-// Section 3.2: Wall Collision Time
-// ---------------------------------------------------------
 double get_wall_collision_time(const GameObject *puck) {
     double t_min = DBL_MAX;
     double t;
 
-    // Check Left Wall (X = 10)
+    // Check Left Wall
     if (puck->vel.x < 0) {
         t = (PLAY_LEFT + puck->radius - puck->pos.x) / puck->vel.x;
         if(t>=0){
@@ -20,7 +17,7 @@ double get_wall_collision_time(const GameObject *puck) {
             }
         }
     }
-    // Check Right Wall (X = 630)
+    // Check Right Wall
     else if (puck->vel.x > 0) {
         t = (PLAY_RIGHT - puck->radius - puck->pos.x) / puck->vel.x;
         if(t>=0){
@@ -32,12 +29,12 @@ double get_wall_collision_time(const GameObject *puck) {
         }
     }
 
-    // Check Top Wall (Y = 10)
+    // Check Top Wall
     if (puck->vel.y < 0) {
         t = (PLAY_TOP + puck->radius - puck->pos.y) / puck->vel.y;
         if (t >= 0 && t < t_min) t_min = t;
     }
-    // Check Bottom Wall (Y = 470)
+    // Check Bottom Wall
     else if (puck->vel.y > 0) {
         t = (PLAY_BOTTOM - puck->radius - puck->pos.y) / puck->vel.y;
         if (t >= 0 && t < t_min) t_min = t;
@@ -46,9 +43,7 @@ double get_wall_collision_time(const GameObject *puck) {
     return t_min;
 }
 
-// ---------------------------------------------------------
-// Section 3.3: Paddle Collision Time (The Quadratic Solver)
-// ---------------------------------------------------------
+// Paddle Collision Time (The Quadratic Solver)
 double getPaddleCollisionTime(const GameObject *puck, const GameObject *paddle) {
     // Relative position (Delta P)
     double dp_x = puck->pos.x - paddle->pos.x;
@@ -97,11 +92,9 @@ double getPaddleCollisionTime(const GameObject *puck, const GameObject *paddle) 
     return t_c;
 }
 
-// ---------------------------------------------------------
-// Section 3.4: 2D Post-Collision Velocities
-// ---------------------------------------------------------
+// 2D Post-Collision Velocities
 void applyPaddleCollision(GameObject *puck, const GameObject *paddle, double restitution) {
-    // 1. Define the Normal Vector (Line of Action)
+    // Define the Normal Vector (Line of Action)
     double Nx = puck->pos.x - paddle->pos.x;
     double Ny = puck->pos.y - paddle->pos.y;
     
@@ -114,33 +107,30 @@ void applyPaddleCollision(GameObject *puck, const GameObject *paddle, double res
     double nx = Nx / distance;
     double ny = Ny / distance;
 
-    // 2. Define the Tangent Vector (Perpendicular to Normal)
+    // Define the Tangent Vector (Perpendicular to Normal)
     double tx = -ny;
     double ty = nx;
 
-    // 3. Project Velocities onto Normal and Tangent Axes (Dot Products)
+    // Project Velocities onto Normal and Tangent Axes (Dot Products)
     double U_puck_n = (puck->vel.x * nx) + (puck->vel.y * ny);
     double U_puck_t = (puck->vel.x * tx) + (puck->vel.y * ty);
     
     double U_paddle_n = (paddle->vel.x * nx) + (paddle->vel.y * ny);
 
     // If the puck is already moving away from the paddle along the normal, 
-    // do not recalculate (prevents objects getting "sticky" and trapping each other)
     if (U_puck_n >= U_paddle_n) return;
 
-    // 4. Apply 1D Infinite Mass Collision Formula
+    // Apply 1D Infinite Mass Collision Formula
     double V_puck_n_new = (1.0 + restitution) * U_paddle_n - (restitution * U_puck_n);
     
     // Tangent velocity is unchanged (frictionless)
     double V_puck_t_new = U_puck_t;
 
-    // 5. Convert Back to Global X and Y Coordinates
+    // Convert Back to Global X and Y Coordinates
     puck->vel.x = (V_puck_n_new * nx) + (V_puck_t_new * tx);
     puck->vel.y = (V_puck_n_new * ny) + (V_puck_t_new * ty);
 }
 
-
-//Gerald's version
 void applyWallBounce(GameObject *puck, double restitution) {
     const double EPS = 0.001;
 
@@ -185,32 +175,3 @@ void applyWallBounce(GameObject *puck, double restitution) {
         puck->vel.y = -puck->vel.y * restitution;
     }
 }
-
-// // ---------------------------------------------------------
-// // Section 3.2.1: Flat Wall Bounce Resolution
-// // ---------------------------------------------------------
-// void applyWallBounce(GameObject *puck) {
-//     // Floating point math can be slightly imprecise. 
-//     // We use a tiny epsilon (0.001) to safely check boundaries.
-    
-//     // Check Vertical Walls (Flip X)
-//     if (puck->pos.x <= 10.0 + puck->radius + 0.001 || 
-//         puck->pos.x >= 630.0 - puck->radius - 0.001) {
-        
-//         // Only flip if it's actually heading into the wall (prevents sticking)
-//         if ((puck->pos.x < 320.0 && puck->vel.x < 0) || 
-//             (puck->pos.x > 320.0 && puck->vel.x > 0)) {
-//             puck->vel.x = -puck->vel.x;
-//         }
-//     }
-
-//     // Check Horizontal Walls (Flip Y)
-//     if (puck->pos.y <= 10.0 + puck->radius + 0.001 || 
-//         puck->pos.y >= 470.0 - puck->radius - 0.001) {
-        
-//         if ((puck->pos.y < 240.0 && puck->vel.y < 0) || 
-//             (puck->pos.y > 240.0 && puck->vel.y > 0)) {
-//             puck->vel.y = -puck->vel.y;
-//         }
-//     }
-// }

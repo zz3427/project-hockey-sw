@@ -1,5 +1,3 @@
-// tests/test_game_io_gameobject.c
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <errno.h>

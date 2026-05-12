@@ -51,26 +51,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // open mouse input device for player 1 and player 2
-    // const char *dev_mouse1 = "/dev/input/event0";
-    // const char *dev_mouse2 = "/dev/input/event1";
-
-    // int mouse_fd1, mouse_fd2;
-
-    // mouse_fd1 = open(dev_mouse1, O_RDONLY | O_NONBLOCK);
-    // if (mouse_fd1 == -1) {
-    //     perror("open(mouse device 1) failed");
-    //     game_io_close();
-    //     return 1;
-    // }
-
-    // mouse_fd2 = open(dev_mouse2, O_RDONLY | O_NONBLOCK);
-    // if (mouse_fd2 == -1) {
-    //     perror("open(mouse device 2) failed");
-    //     game_io_close();
-    //     return 1;
-    // }
-
     // Scan /dev/input/by-path for event-mouse devices and open the first two
     int mouse_fd1, mouse_fd2;
     if (open_two_mouse_devices(&mouse_fd1, &mouse_fd2) != 0) {
@@ -81,13 +61,12 @@ int main(int argc, char *argv[]) {
 
     unsigned char sound_event = AIR_HOCKEY_SOUND_NONE;
 
-    // 2. Main Hardware Game Loop
+    // 2. Main Game Loop
     while (game_state != 2) {
 
         // Wait for VGA to finish drawing the current frame (60 Hz sync)
         game_io_wait_for_vsync();
 
-        // TODO: Read /dev/input/mice evdev accumulators here and apply to p1.pos and p2.pos
         // STEP 1: Read input nonblocking, and update paddle
         poll_mouse_and_update_paddle(mouse_fd1, &p1, &puck, P1_X_MIN, P1_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX, P1_MOUSE_X_SIGN, P1_MOUSE_Y_SIGN);
         poll_mouse_and_update_paddle(mouse_fd2, &p2, &puck, P2_X_MIN, P2_X_MAX, PADDLE_Y_MIN, PADDLE_Y_MAX, P2_MOUSE_X_SIGN, P2_MOUSE_Y_SIGN);
@@ -105,13 +84,12 @@ int main(int argc, char *argv[]) {
             sound_event = AIR_HOCKEY_SOUND_GOAL;
             game_state = 1;
         }
-        // STEP 4: Decide sound event for this frame
 
-        // STEP 5: Push all state to hardware
+        // STEP 4: Push all state to hardware
         // Send updated coordinates to the Verilog VGA driver
         write_to_vga_registers(&puck, &p1, &p2, p1_score, p2_score, sound_event);
 
-        // STEP 6: Reset after a goal has been scored
+        // STEP 5: Reset after a goal has been scored
         if (score_updater == 1) {
             usleep(250000);
             reset_after_goal(&puck, &p1, &p2, PUCK_START_X_P1);

@@ -15,12 +15,6 @@
  *   - read status register
  *   - wait for VSYNC
  *   - send logical puck / paddle / score / sound updates
- *
- * Non-responsibilities:
- *   - no physics
- *   - no mouse decoding
- *   - no game rules
- *   - no hardware register packing details
  */
 
 #include "../driver/air_hockey.h"
