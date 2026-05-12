@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
             game_state = 0;
             if (p1_score >= MAX_SCORE || p2_score >= MAX_SCORE) {
                 printf("Game over! Final score: P1=%d, P2=%d\n", p1_score, p2_score);
-                for (int i = 3; i >= 0; i--) {
+                for (int i = 3; i > 0; i--) {
                     printf("Restarting game in %d...\n", i);
                     write_to_vga_registers(&puck, &p1, &p2, i, i, AIR_HOCKEY_SOUND_GOAL);
                     usleep(1000000);
