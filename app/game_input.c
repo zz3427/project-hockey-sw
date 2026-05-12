@@ -142,9 +142,22 @@ void poll_mouse_and_update_paddle(int mouse_fd,
         }
     }
 
+    // Convert physical mouse movement to game paddle movement.
+    // This handles monitor/table orientation
+    int mapped_dx = dx;
+    int mapped_dy = dy;
+
+    #if MOUSE_SWAP_XY
+    mapped_dx = dy;
+    mapped_dy = dx;
+    #endif
+
+    mapped_dx *= MOUSE_X_SIGN;
+    mapped_dy *= MOUSE_Y_SIGN;
+
     // convert mouse movement to paddle movement, with sensitivity and max speed limits
-    double move_x = dx * MOUSE_SENSITIVITY;
-    double move_y = dy * MOUSE_SENSITIVITY;
+    double move_x = mapped_dx * MOUSE_SENSITIVITY;
+    double move_y = mapped_dy * MOUSE_SENSITIVITY;
 
     move_x = clamp_double(move_x, -MAX_PADDLE_SPEED, MAX_PADDLE_SPEED);
     move_y = clamp_double(move_y, -MAX_PADDLE_SPEED, MAX_PADDLE_SPEED);

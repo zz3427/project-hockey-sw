@@ -1,6 +1,16 @@
 #ifndef GAME_CONFIG_H
 #define GAME_CONFIG_H
 
+// Mouse orientation mapping
+// 0 = normal monitor orientation
+// 1 = monitor laid flat / mouse axes swapped
+#define MOUSE_SWAP_XY 1
+
+// Optional sign flips after swapping.
+// Set to -1 if one direction feels backwards.
+#define MOUSE_X_SIGN 1
+#define MOUSE_Y_SIGN 1
+
 // Screen geometry
 #define SCREEN_WIDTH    640.0
 #define SCREEN_HEIGHT   480.0
