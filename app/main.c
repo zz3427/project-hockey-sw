@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     GameObject p2 = {{540.0, 240.0}, {0.0, 0.0}, PADDLE_RADIUS};
     GameObject puck = {{320.0, 240.0}, {0.0, 0.0}, PUCK_RADIUS}; 
 
-    // if command line argument puck is provided, set initial puck velocity for testing
+    // if command line argument puck is provided, set initial puck velocity
     // command line argument format: puckx pucky puckvelx puckvely
     if (argc == 5) {
         debug_physics = 1;
@@ -117,7 +117,11 @@ int main(int argc, char *argv[]) {
             game_state = 0;
             if (p1_score >= MAX_SCORE || p2_score >= MAX_SCORE) {
                 printf("Game over! Final score: P1=%d, P2=%d\n", p1_score, p2_score);
-                game_state = 2; // end game loop
+                for (int i = 0; i < 5; i++) {
+                    write_to_vga_registers(&puck, &p1, &p2, i, i, AIR_HOCKEY_SOUND_GOAL);
+                    usleep(500000);
+                }
+                game_state = 0; // end game loop
             }
         }
     }
